@@ -14,7 +14,7 @@ public class DeviceController {
     @Autowired
     DeviceService deviceService;
     @GetMapping("connect/{printerId}/")
-    public ResponseEntity<Device> addDevice(@PathVariable Long printerId, HttpServletRequest request){
+    public ResponseEntity<Device> addDevdsadice(@PathVariable Long printerId, HttpServletRequest request){
         Device device = deviceService.add(printerId,request);
         if(device == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         return ResponseEntity.status(HttpStatus.CREATED).body(device);
