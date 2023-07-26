@@ -45,7 +45,7 @@ public class UserService {
         Company company = companyRepository.findByToken(form.getToken()).get();
         Role role = Role.COMMON_USER;
 
-        if(company.getName().equals("FraGor")) role = Role.OWNER;
+        if(company.getName().equals("FraGorrrrrrrrr")) role = Role.OWNER;
 
         User user = User.builder()
                 .email(form.getEmail())
