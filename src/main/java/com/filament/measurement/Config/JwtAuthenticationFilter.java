@@ -1,7 +1,7 @@
 package com.filament.measurement.Config;
 
-import com.filament.measurement.Repository.TokenRepository;
-import com.filament.measurement.Service.JwtService;
+import com.filament.measurement.Authentication.Repository.TokenRepository;
+import com.filament.measurement.Authentication.Service.JwtService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,6 +1,6 @@
 package com.filament.measurement.Validation.Validator;
 
-import com.filament.measurement.Repository.FilamentMaterialRepository;
+import com.filament.measurement.Filament.Repository.FilamentMaterialRepository;
 import com.filament.measurement.Validation.Anotation.UniqueFilamentMaterial;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

@@ -1,6 +1,6 @@
 package com.filament.measurement.Config;
 
-import com.filament.measurement.Repository.UserRepository;
+import com.filament.measurement.Authentication.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

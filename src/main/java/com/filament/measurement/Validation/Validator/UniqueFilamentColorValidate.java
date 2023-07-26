@@ -1,6 +1,6 @@
 package com.filament.measurement.Validation.Validator;
 
-import com.filament.measurement.Repository.FilamentColorRepository;
+import com.filament.measurement.Filament.Repository.FilamentColorRepository;
 import com.filament.measurement.Validation.Anotation.UniqueFilamentColor;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

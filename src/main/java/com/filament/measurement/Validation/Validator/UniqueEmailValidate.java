@@ -1,6 +1,6 @@
 package com.filament.measurement.Validation.Validator;
 
-import com.filament.measurement.Repository.UserRepository;
+import com.filament.measurement.Authentication.Repository.UserRepository;
 import com.filament.measurement.Validation.Anotation.UniqueEmail;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

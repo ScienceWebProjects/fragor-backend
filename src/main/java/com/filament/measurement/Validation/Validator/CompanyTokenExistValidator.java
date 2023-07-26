@@ -1,6 +1,6 @@
 package com.filament.measurement.Validation.Validator;
 
-import com.filament.measurement.Repository.CompanyRepository;
+import com.filament.measurement.Authentication.Repository.CompanyRepository;
 import com.filament.measurement.Validation.Anotation.CompanyTokenExist;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
