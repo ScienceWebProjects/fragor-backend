@@ -1,6 +1,9 @@
 package com.filament.measurement.Authentication.Service;
 
 import com.filament.measurement.Authentication.DTO.AuthenticationTokenDTO;
+import com.filament.measurement.Authentication.DTO.UserPermissionDTO;
+import com.filament.measurement.Authentication.DTOMapper.AuthenticationTokenDTOMapper;
+import com.filament.measurement.Authentication.DTOMapper.UserPermissionDTOMapper;
 import com.filament.measurement.Authentication.Request.*;
 import com.filament.measurement.Exception.NotFound404Exception;
 import com.filament.measurement.Exception.CustomValidationException;
@@ -20,10 +23,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,12 +38,16 @@ public class UserService {
     @Autowired
     private final AuthenticationManager authenticationManager;
     @Autowired
+    private final AuthenticationTokenDTOMapper authenticationTokenDTOMapper;
+    @Autowired
+    private final UserPermissionDTOMapper userPermissionDTOMapper;
+    @Autowired
     private final JwtService jwtService;
     @Autowired
     private final TokenRepository tokenRepository;
 
-    public boolean userRegistration(UserRegistrationRequest form){
-        Company company = companyRepository.findByToken(form.getToken()).get();
+    public void userRegistration(UserRegistrationRequest form){
+        Company company = companyRepository.findByToken(form.getToken()).orElseThrow();
         Role role = Role.COMMON_USER;
 
         if(company.getName().equals("FraGor")) role = Role.OWNER;
@@ -56,9 +61,7 @@ public class UserService {
                 .role(role)
                 .build();
         userRepository.save(user);
-        return true;
     }
-
     public AuthenticationTokenDTO userLogin (UserLoginRequest form){
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -77,10 +80,7 @@ public class UserService {
                 .build();
         revokeAllUserTokens(user);
         tokenRepository.save(token);
-        return AuthenticationTokenDTO.builder()
-                .token(jwt)
-                .permission(user.getRole().name())
-                .build();
+        return authenticationTokenDTOMapper.apply(jwt,user.getRole());
     }
     public void deleteUserByMaster(String email, HttpServletRequest request){
         User masterUser = jwtService.extractUser(request);
@@ -88,64 +88,41 @@ public class UserService {
         isUserInCompany(masterUser,deleteUser);
         userRepository.deleteById(deleteUser.getId());
     }
-
-
-
-    public ArrayList<HashMap<String,String>> getUsersPermissions(HttpServletRequest request) {
+    public List<UserPermissionDTO> getUsersPermissions(HttpServletRequest request) {
         User masterUser = jwtService.extractUser(request);
         List<User> companyUsers = masterUser.getCompany().getUsers();
-        ArrayList<HashMap<String,String>> userPermissions = new ArrayList<>();
-        companyUsers.forEach(user -> {
-            String changerUser = "false";
-            HashMap<String,String> data = new HashMap<>();
-            if (user.getRole().name().equals("MASTER_USER")){
-                return;
-            }
-            if (user.getRole().name().equals("CHANGER_USER")){
-                changerUser = "true";
-            }
-            data.put("username",user.getUsername());
-            data.put("changer",changerUser);
-            userPermissions.add(data);
-        });
-        return userPermissions;
+        return companyUsers.stream()
+                .map(userPermissionDTOMapper)
+                .collect(Collectors.toList());
     }
-
-    public User changeUserPermissionsByMaster(ChangeUserPermissionsRequest form, HttpServletRequest request) {
+    public void changeUserPermissionsByMaster(ChangeUserPermissionsRequest form, HttpServletRequest request) {
         User masterUser = jwtService.extractUser(request);
         User user = userRepository.findByEmail(form.getEmail()).orElseThrow(() ->new NotFound404Exception("No found user"));
         isUserInCompany(masterUser,user);
         if (form.getChanger()) user.setRole(Role.CHANGER_USER);
         else user.setRole(Role.COMMON_USER);
         userRepository.save(user);
-        return user;
     }
-
-    public User changeUserEmail(ChangeUserEmailRequest form, HttpServletRequest request) {
+    public void changeUserEmail(ChangeUserEmailRequest form, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
         user.setEmail(form.getEmail());
         userRepository.save(user);
-        return user;
     }
     public void changeUserPassword(ChangeUserPasswordRequest form, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
-        if (passwordEncoder.matches(form.getOldPassword(),user.getPassword())){
-            if (form.getPassword().equals(form.getPassword2())) {
-                user.setPassword(passwordEncoder.encode(form.getPassword()));
-                userRepository.save(user);
-                return;
-            }
+
+        if (!passwordEncoder.matches(form.getOldPassword(),user.getPassword()))
+            throw new CustomValidationException("Wrong old password");
+
+        if (!form.getPassword().equals(form.getPassword2()))
             throw new CustomValidationException("Password don't match");
-        }
-        throw new CustomValidationException("Wrong old password");
+
+        user.setPassword(passwordEncoder.encode(form.getPassword()));
+        userRepository.save(user);
     }
-
     private void isUserInCompany(User masterUser,User user){
-        if (masterUser.getCompany().equals(user.getCompany())) {
-            return;
-        }
-        throw new NotFound404Exception("Big brother watching you");
-
+        if (!masterUser.getCompany().equals(user.getCompany()))
+            throw new NotFound404Exception("Big brother watching you");
     }
     private void revokeAllUserTokens(User user){
         List<Token> validTokens = tokenRepository.findAllValidTokensByUser(user.getId());
