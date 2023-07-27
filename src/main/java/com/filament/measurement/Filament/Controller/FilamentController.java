@@ -1,8 +1,8 @@
 package com.filament.measurement.Filament.Controller;
 
 import com.filament.measurement.Filament.DTO.FilamentDTO;
-import com.filament.measurement.Filament.Form.FilamentForm;
-import com.filament.measurement.Filament.Form.FilamentSubtraction;
+import com.filament.measurement.Filament.Request.FilamentRequest;
+import com.filament.measurement.Filament.Request.FilamentSubtractionRequest;
 import com.filament.measurement.Filament.Model.Filament;
 import com.filament.measurement.Filament.Service.FilamentService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@CrossOrigin
 @RestController
 @RequestMapping("api/filaments/")
 public class FilamentController {
@@ -25,7 +25,7 @@ public class FilamentController {
     }
 
     @PostMapping("get-all-and-add/")
-    private ResponseEntity<FilamentDTO> addFilament(@RequestBody FilamentForm form, HttpServletRequest request){
+    private ResponseEntity<FilamentDTO> addFilament(@RequestBody FilamentRequest form, HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(filamentService.addFilament(form,request));
     }
     @GetMapping("get-all-and-add/")
@@ -41,7 +41,7 @@ public class FilamentController {
             @Valid
             @PathVariable Long id,
             HttpServletRequest request,
-            @RequestBody FilamentForm form){
+            @RequestBody FilamentRequest form){
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.updateFilament(id,request,form));
     }
     @DeleteMapping("{id}/")
@@ -67,7 +67,7 @@ public class FilamentController {
 
     }
     @PutMapping("subtraction/")
-    private ResponseEntity.BodyBuilder subtraction(@RequestBody FilamentSubtraction form, HttpServletRequest request){
+    private ResponseEntity.BodyBuilder subtraction(@RequestBody FilamentSubtractionRequest form, HttpServletRequest request){
         filamentService.subtraction(form,request);
         return ResponseEntity.ok();
     }

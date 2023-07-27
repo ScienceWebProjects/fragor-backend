@@ -18,7 +18,6 @@ public class PrinterFilaments {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIgnore
     private Printer printer;
     @ManyToOne(fetch = FetchType.EAGER)
     private FilamentMaterial filamentMaterial;

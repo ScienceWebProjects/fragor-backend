@@ -2,7 +2,7 @@ package com.filament.measurement.Printer.Service;
 
 import com.filament.measurement.Authentication.Service.JwtService;
 import com.filament.measurement.Exception.CustomValidationException;
-import com.filament.measurement.Printer.Form.PrinterForm;
+import com.filament.measurement.Printer.Request.PrinterFormRequest;
 import com.filament.measurement.Authentication.Model.Company;
 import com.filament.measurement.Printer.Model.Printer;
 import com.filament.measurement.Printer.Model.PrinterModel;
@@ -23,7 +23,7 @@ public class PrinterService {
     PrinterRepository printerRepository;
     @Autowired
     PrinterModelRepository printerModelRepository;
-    public Printer add(PrinterForm form, HttpServletRequest request) {
+    public Printer add(PrinterFormRequest form, HttpServletRequest request) {
         Company company = jwtService.extractUser(request).getCompany();
         if(printerRepository.nameExists(company,form.getName()))
             throw new CustomValidationException("Printer with this name already exists.");

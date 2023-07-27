@@ -19,7 +19,6 @@ public class PrinterModel {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIgnore
     private Company company;
 
     private String model;

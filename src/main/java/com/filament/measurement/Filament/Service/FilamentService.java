@@ -7,8 +7,8 @@ import com.filament.measurement.Device.Repository.DeviceRepository;
 import com.filament.measurement.Exception.NotFound404Exception;
 import com.filament.measurement.Filament.DTO.FilamentDTO;
 import com.filament.measurement.Filament.DTOMapper.FilamentDTOMapper;
-import com.filament.measurement.Filament.Form.FilamentForm;
-import com.filament.measurement.Filament.Form.FilamentSubtraction;
+import com.filament.measurement.Filament.Request.FilamentRequest;
+import com.filament.measurement.Filament.Request.FilamentSubtractionRequest;
 import com.filament.measurement.Filament.Model.Filament;
 import com.filament.measurement.Filament.Model.FilamentColor;
 import com.filament.measurement.Filament.Model.FilamentMaterial;
@@ -19,7 +19,6 @@ import com.filament.measurement.Printer.Model.Printer;
 import com.filament.measurement.Printer.Model.PrinterFilaments;
 import com.filament.measurement.Printer.Repository.PrinterFilamentsRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +56,7 @@ public class FilamentService {
         this.filamentMaterialRepository = filamentMaterialRepository;
     }
 
-    public FilamentDTO addFilament(FilamentForm form, HttpServletRequest request) {
+    public FilamentDTO addFilament(FilamentRequest form, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
         FilamentColor filamentColor = getFilamentColor(form.getColor(),user);
         FilamentMaterial filamentMaterial = getFilamentMaterial(form.getMaterial());
@@ -84,7 +83,7 @@ public class FilamentService {
         return filamentDTOMapper.apply(getFilament(user,id));
     }
 
-    public Filament updateFilament(Long id, HttpServletRequest request, FilamentForm form) {
+    public Filament updateFilament(Long id, HttpServletRequest request, FilamentRequest form) {
         User user = jwtService.extractUser(request);
         Filament filament = getFilament(user,id);
         if(!filament.getColor().getColor().equals(form.getColor())){
@@ -155,7 +154,7 @@ public class FilamentService {
         );
     }
 
-    public void subtraction(FilamentSubtraction form, HttpServletRequest request) {
+    public void subtraction(FilamentSubtractionRequest form, HttpServletRequest request) {
 
         Optional<Device> deviceOptional = deviceRepository.findByIp(form.getIp());
         if (deviceOptional.isEmpty()) return;

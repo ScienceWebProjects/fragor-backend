@@ -22,7 +22,6 @@ public class Printer {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIgnore
     private Company company;
 
     private String name;

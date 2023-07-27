@@ -1,6 +1,6 @@
 package com.filament.measurement.Printer.Controller;
 
-import com.filament.measurement.Printer.Form.PrinterForm;
+import com.filament.measurement.Printer.Request.PrinterFormRequest;
 import com.filament.measurement.Printer.Model.Printer;
 import com.filament.measurement.Printer.Service.PrinterService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,14 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin
 @RestController
 @RequestMapping("/api/printer/")
 public class PrinterController {
     @Autowired
     PrinterService printerService;
     @PostMapping("add/")
-    public ResponseEntity<Printer> add(@RequestBody PrinterForm form, HttpServletRequest request){
+    public ResponseEntity<Printer> add(@RequestBody PrinterFormRequest form, HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(printerService.add(form,request));
     }
     @GetMapping("get/")

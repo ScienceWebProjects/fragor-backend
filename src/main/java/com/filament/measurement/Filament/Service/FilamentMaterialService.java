@@ -2,12 +2,11 @@ package com.filament.measurement.Filament.Service;
 
 import com.filament.measurement.Authentication.Service.JwtService;
 import com.filament.measurement.Exception.NotFound404Exception;
-import com.filament.measurement.Filament.Form.FilamentMaterialForm;
+import com.filament.measurement.Filament.Request.FilamentMaterialRequest;
 import com.filament.measurement.Filament.Model.FilamentMaterial;
 import com.filament.measurement.Authentication.Model.User;
 import com.filament.measurement.Filament.Repository.FilamentMaterialRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,7 @@ public class FilamentMaterialService {
         this.jwtService = jwtService;
         this.filamentMaterialRepository = filamentMaterialRepository;
     }
-    public FilamentMaterial addNewMaterial(HttpServletRequest request, FilamentMaterialForm form) {
+    public FilamentMaterial addNewMaterial(HttpServletRequest request, FilamentMaterialRequest form) {
         User user = jwtService.extractUser(request);
         FilamentMaterial filamentMaterial = FilamentMaterial.builder()
                 .material(form.getMaterial())
