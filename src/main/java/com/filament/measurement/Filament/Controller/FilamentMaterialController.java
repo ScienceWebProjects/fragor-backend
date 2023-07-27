@@ -16,10 +16,15 @@ import java.util.List;
 @RestController()
 @RequestMapping("api/filaments/material/")
 public class FilamentMaterialController {
+    private final FilamentMaterialService filamentMaterialService;
+    private final FilamentMaterialRepository filamentMaterialRepository;
     @Autowired
-    FilamentMaterialService filamentMaterialService;
-    @Autowired
-    FilamentMaterialRepository filamentMaterialRepository;
+    public FilamentMaterialController(FilamentMaterialService filamentMaterialService,
+                                      FilamentMaterialRepository filamentMaterialRepository) {
+        this.filamentMaterialService = filamentMaterialService;
+        this.filamentMaterialRepository = filamentMaterialRepository;
+    }
+
     @PostMapping("get-all-and-add/")
     public ResponseEntity<FilamentMaterial> addNewFilamentMaterial(
             @Valid

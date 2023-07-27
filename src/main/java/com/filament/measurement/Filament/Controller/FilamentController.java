@@ -1,5 +1,6 @@
 package com.filament.measurement.Filament.Controller;
 
+import com.filament.measurement.Filament.DTO.FilamentDTO;
 import com.filament.measurement.Filament.Form.FilamentForm;
 import com.filament.measurement.Filament.Form.FilamentSubtraction;
 import com.filament.measurement.Filament.Model.Filament;
@@ -17,18 +18,22 @@ import java.util.List;
 @RestController
 @RequestMapping("api/filaments/")
 public class FilamentController {
+    private final  FilamentService filamentService;
     @Autowired
-    FilamentService filamentService;
+    public FilamentController(FilamentService filamentService) {
+        this.filamentService = filamentService;
+    }
+
     @PostMapping("get-all-and-add/")
-    private ResponseEntity<Filament> addFilament(@RequestBody FilamentForm form, HttpServletRequest request){
+    private ResponseEntity<FilamentDTO> addFilament(@RequestBody FilamentForm form, HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(filamentService.addFilament(form,request));
     }
     @GetMapping("get-all-and-add/")
-    private ResponseEntity<List<Filament>> getAllFilaments(HttpServletRequest request){
+    private ResponseEntity<List<FilamentDTO>> getAllFilaments(HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.getAllFilaments(request));
     }
     @GetMapping("{id}/")
-    private ResponseEntity<Filament> getFilament (@PathVariable Long id, HttpServletRequest request){
+    private ResponseEntity<FilamentDTO> getFilament (@PathVariable Long id, HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.getFilament(id,request));
     }
     @PatchMapping("{id}/")
@@ -69,7 +74,7 @@ public class FilamentController {
 
     @GetMapping("/add/{amount}/")
     private ResponseEntity<ArrayList<Filament>> addRandomFilaments(@PathVariable int amount,HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.OK).body(filamentService.addRabdomFilaments(amount,request));
+        return ResponseEntity.status(HttpStatus.OK).body(filamentService.addRandomFilaments(amount,request));
     }
 
 }

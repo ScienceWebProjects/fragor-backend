@@ -5,6 +5,8 @@ import com.filament.measurement.Authentication.Service.JwtService;
 import com.filament.measurement.Device.Model.Device;
 import com.filament.measurement.Device.Repository.DeviceRepository;
 import com.filament.measurement.Exception.NotFound404Exception;
+import com.filament.measurement.Filament.DTO.FilamentDTO;
+import com.filament.measurement.Filament.DTOMapper.FilamentDTOMapper;
 import com.filament.measurement.Filament.Form.FilamentForm;
 import com.filament.measurement.Filament.Form.FilamentSubtraction;
 import com.filament.measurement.Filament.Model.Filament;
@@ -25,24 +27,37 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
-@NoArgsConstructor
 @Service
 public class FilamentService {
+    private final JwtService jwtService;
+    private final DeviceRepository deviceRepository;
+    private final FilamentDTOMapper filamentDTOMapper;
+    private final FilamentRepository filamentRepository;
+    private final FilamentColorRepository filamentColorRepository;
+    private final FilamentMaterialRepository filamentMaterialRepository;
+    private final PrinterFilamentsRepository printerFilamentsRepository;
     @Autowired
-    FilamentMaterialRepository filamentMaterialRepository;
-    @Autowired
-    FilamentColorRepository filamentColorRepository;
-    @Autowired
-    JwtService jwtService;
-    @Autowired
-    DeviceRepository deviceRepository;
-    @Autowired
-    FilamentRepository filamentRepository;
-    @Autowired
-    PrinterFilamentsRepository printerFilamentsRepository;
+    public FilamentService(
+            JwtService jwtService,
+            DeviceRepository deviceRepository,
+            FilamentDTOMapper filamentDTOMapper,
+            FilamentRepository filamentRepository,
+            FilamentColorRepository filamentColorRepository,
+            PrinterFilamentsRepository printerFilamentsRepository,
+            FilamentMaterialRepository filamentMaterialRepository
+    ) {
+        this.jwtService = jwtService;
+        this.deviceRepository = deviceRepository;
+        this.filamentDTOMapper = filamentDTOMapper;
+        this.filamentRepository = filamentRepository;
+        this.filamentColorRepository = filamentColorRepository;
+        this.printerFilamentsRepository = printerFilamentsRepository;
+        this.filamentMaterialRepository = filamentMaterialRepository;
+    }
 
-    public Filament addFilament(FilamentForm form, HttpServletRequest request) {
+    public FilamentDTO addFilament(FilamentForm form, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
         FilamentColor filamentColor = getFilamentColor(form.getColor(),user);
         FilamentMaterial filamentMaterial = getFilamentMaterial(form.getMaterial());
@@ -54,17 +69,19 @@ public class FilamentService {
                 .material(filamentMaterial)
                 .build();
         filamentRepository.save(filament);
-        return filament;
+        return filamentDTOMapper.apply(filament);
     }
 
-    public List<Filament> getAllFilaments(HttpServletRequest request) {
+    public List<FilamentDTO> getAllFilaments(HttpServletRequest request) {
         User user = jwtService.extractUser(request);
-        return filamentRepository.findAllByCompany(user.getCompany());
+        return filamentRepository.findAllByCompany(user.getCompany()).stream()
+                .map(filamentDTOMapper)
+                .collect(Collectors.toList());
     }
 
-    public Filament getFilament(Long id, HttpServletRequest request) {
+    public FilamentDTO getFilament(Long id, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
-        return getFilament(user,id);
+        return filamentDTOMapper.apply(getFilament(user,id));
     }
 
     public Filament updateFilament(Long id, HttpServletRequest request, FilamentForm form) {
@@ -82,24 +99,6 @@ public class FilamentService {
         return filament;
     }
 
-    private Filament getFilament(User user,Long id) {
-        Optional<Filament> filament = filamentRepository.findByIdAndCompany(id, user.getCompany());
-        if (filament.isEmpty()) throw new NotFound404Exception("Filament not found.");
-        return filament.get();
-    }
-    private FilamentColor getFilamentColor(String color,User user){
-        Optional<FilamentColor> filamentColor = filamentColorRepository.findByColorAndCompany(
-                color,user.getCompany()
-        );
-        if(filamentColor.isEmpty()) throw new NotFound404Exception("Filament's color doesn't found.");
-        return filamentColor.get();
-    }
-    private FilamentMaterial getFilamentMaterial(String material){
-        Optional<FilamentMaterial> filamentMaterial = filamentMaterialRepository.findByMaterial(material);
-        if(filamentMaterial.isEmpty()) throw new NotFound404Exception("Filament's material doesn't found.");
-        return filamentMaterial.get();
-    }
-
     public void deleteFilament(Long id, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
         Optional<Filament> filament = filamentRepository.findByIdAndCompany(id,user.getCompany());
@@ -107,7 +106,7 @@ public class FilamentService {
         filamentRepository.delete(filament.get());
     }
 
-    public ArrayList<Filament> addRabdomFilaments(int amount, HttpServletRequest request) {
+    public ArrayList<Filament> addRandomFilaments(int amount, HttpServletRequest request) {
         ArrayList<Filament> filaments = new ArrayList<>();
         User user = jwtService.extractUser(request);
         ArrayList<FilamentColor> filamentColor = new ArrayList<>(
@@ -186,5 +185,22 @@ public class FilamentService {
         PrinterFilaments printerFilaments = printerFilamentsOptional.get();
         printerFilaments.setAmount(printerFilaments.getAmount()+form.getQuantity());
         printerFilamentsRepository.save(printerFilaments);
+    }
+    private Filament getFilament(User user,Long id) {
+        Optional<Filament> filament = filamentRepository.findByIdAndCompany(id, user.getCompany());
+        if (filament.isEmpty()) throw new NotFound404Exception("Filament not found.");
+        return filament.get();
+    }
+    private FilamentColor getFilamentColor(String color,User user){
+        Optional<FilamentColor> filamentColor = filamentColorRepository.findByColorAndCompany(
+                color,user.getCompany()
+        );
+        if(filamentColor.isEmpty()) throw new NotFound404Exception("Filament's color doesn't found.");
+        return filamentColor.get();
+    }
+    private FilamentMaterial getFilamentMaterial(String material){
+        Optional<FilamentMaterial> filamentMaterial = filamentMaterialRepository.findByMaterial(material);
+        if(filamentMaterial.isEmpty()) throw new NotFound404Exception("Filament's material doesn't found.");
+        return filamentMaterial.get();
     }
 }

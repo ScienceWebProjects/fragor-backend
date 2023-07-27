@@ -15,8 +15,12 @@ import java.util.List;
 @RestController
 @RequestMapping("api/filaments/color/")
 public class FilamentColorController {
+    private final FilamentColorService filamentColorService;
+
     @Autowired
-    FilamentColorService filamentColorService;
+    public FilamentColorController(FilamentColorService filamentColorService) {
+        this.filamentColorService = filamentColorService;
+    }
 
     @GetMapping("get-all-and-add/")
     public ResponseEntity<List<FilamentColor>> getAllCompanyFilamentsColor(HttpServletRequest request){

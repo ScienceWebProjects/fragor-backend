@@ -14,12 +14,14 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-@NoArgsConstructor
 public class FilamentMaterialService {
+    private final JwtService jwtService;
+    private final FilamentMaterialRepository filamentMaterialRepository;
     @Autowired
-    JwtService jwtService;
-    @Autowired
-    FilamentMaterialRepository filamentMaterialRepository;
+    public FilamentMaterialService(JwtService jwtService, FilamentMaterialRepository filamentMaterialRepository) {
+        this.jwtService = jwtService;
+        this.filamentMaterialRepository = filamentMaterialRepository;
+    }
     public FilamentMaterial addNewMaterial(HttpServletRequest request, FilamentMaterialForm form) {
         User user = jwtService.extractUser(request);
         FilamentMaterial filamentMaterial = FilamentMaterial.builder()

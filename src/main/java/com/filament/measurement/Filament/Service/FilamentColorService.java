@@ -17,15 +17,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class FilamentColorService {
+    private final JwtService jwtService;
+    private final FilamentColorRepository filamentColorRepository;
     @Autowired
-    JwtService jwtService;
-    @Autowired
-    FilamentColorRepository filamentColorRepository;
+    public FilamentColorService(JwtService jwtService, FilamentColorRepository filamentColorRepository) {
+        this.jwtService = jwtService;
+        this.filamentColorRepository = filamentColorRepository;
+    }
+
     public List<FilamentColor> getAllColor(HttpServletRequest request) {
         User user = jwtService.extractUser(request);
-
         return filamentColorRepository.findAllByCompanyId(user.getCompany().getId());
     }
 

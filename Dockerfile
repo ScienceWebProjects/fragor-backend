@@ -18,6 +18,7 @@ FROM openjdk:20-jdk-slim
 WORKDIR /app
 # Skopiowanie skompilowanego pliku JAR z etapu poprzedniego
 COPY --from=builder /app/target/measurement-0.0.1.jar .
+COPY src/main/resources/data.sql .
 
 EXPOSE 8080
 # Określenie punktu wejścia dla kontenera Docker

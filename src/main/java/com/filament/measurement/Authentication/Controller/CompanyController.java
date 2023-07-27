@@ -16,8 +16,11 @@ import java.util.List;
 @RequestMapping("owner/")
 public class CompanyController {
 
+    private final CompanyService companyService;
     @Autowired
-    CompanyService companyService;
+    public CompanyController(CompanyService companyService) {
+        this.companyService = companyService;
+    }
 
     @PostMapping("company/add/")
     @PreAuthorize("hasRole('OWNER')")

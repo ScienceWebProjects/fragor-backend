@@ -1,6 +1,5 @@
 package com.filament.measurement.Filament.Model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.filament.measurement.Authentication.Model.Company;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,7 +19,6 @@ public class FilamentColor {
 
     private String color;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     private Company company;
 
