@@ -31,22 +31,19 @@ public class User implements UserDetails {
 
     private String password;
 
-//    private int pin;
+    private String pin;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.REMOVE)
-    @JsonIgnore
     private List<Token> tokens;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
             name = "company_id"
     )
-    @JsonIgnore
     private Company company;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -19,7 +19,6 @@ import java.util.List;
 public class UserController {
     private final UserService service;
 
-    @Autowired
     public UserController(UserService service) {
         this.service = service;
     }
@@ -29,9 +28,13 @@ public class UserController {
         service.userRegistration(form);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
-    @PostMapping("login/")
-    public ResponseEntity<AuthenticationTokenDTO> loginUser(@RequestBody UserLoginRequest form){
-        return ResponseEntity.status(HttpStatus.OK).body(service.userLogin(form));
+    @PostMapping("login/password/")
+    public ResponseEntity<AuthenticationTokenDTO> loginUserViaPassword(@RequestBody UserLoginRequest form){
+        return ResponseEntity.status(HttpStatus.OK).body(service.userLoginViaPassword(form));
+    }
+    @PostMapping("login/pin/")
+    public ResponseEntity<AuthenticationTokenDTO> loginUserViaPin(@RequestBody UserLoginRequest form){
+        return ResponseEntity.status(HttpStatus.OK).body(service.userLoginViaPin(form));
     }
     @DeleteMapping("delete/{email}")
     @PreAuthorize("hasAuthority('master:delete')")
