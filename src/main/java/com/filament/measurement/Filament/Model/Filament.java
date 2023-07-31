@@ -14,12 +14,12 @@ public class Filament {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private double quantity;
 
     private Long uid;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIgnore
     private Company company;
 
     @ManyToOne(fetch = FetchType.EAGER)

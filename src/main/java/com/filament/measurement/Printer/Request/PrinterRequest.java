@@ -1,9 +1,9 @@
-package com.filament.measurement.Printer.Form;
+package com.filament.measurement.Printer.Request;
 
 import lombok.Data;
 
 @Data
-public class PrinterForm {
+public class PrinterRequest {
     private String name;
     private String model;
 }

@@ -22,11 +22,14 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
+    private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
     @Autowired
-    UserRepository userRepository;
+    public JwtService(UserRepository userRepository, TokenRepository tokenRepository) {
+        this.userRepository = userRepository;
+        this.tokenRepository = tokenRepository;
+    }
 
-    @Autowired
-    TokenRepository tokenRepository;
     private static final String SECRET_KEY = "586E3272357538782F413F4428472B4B6250655368566D597133733676397924";
     public String extractUsername(String token) {
         return extractClaim(token,Claims::getSubject);

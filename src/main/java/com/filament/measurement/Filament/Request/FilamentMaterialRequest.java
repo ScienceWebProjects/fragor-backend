@@ -1,14 +1,13 @@
-package com.filament.measurement.Filament.Form;
+package com.filament.measurement.Filament.Request;
 
 import com.filament.measurement.Validation.Anotation.UniqueFilamentMaterial;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
-public class FilamentMaterialForm {
+public class FilamentMaterialRequest {
     @NotBlank(message = "Filament's material can't be blank")
     @UniqueFilamentMaterial
     private String material;

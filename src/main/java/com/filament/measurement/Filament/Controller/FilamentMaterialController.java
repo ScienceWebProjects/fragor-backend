@@ -1,6 +1,7 @@
 package com.filament.measurement.Filament.Controller;
 
-import com.filament.measurement.Filament.Form.FilamentMaterialForm;
+import com.filament.measurement.Filament.DTO.FilamentMaterialDTO;
+import com.filament.measurement.Filament.Request.FilamentMaterialRequest;
 import com.filament.measurement.Filament.Model.FilamentMaterial;
 import com.filament.measurement.Filament.Repository.FilamentMaterialRepository;
 import com.filament.measurement.Filament.Service.FilamentMaterialService;
@@ -12,25 +13,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin
 @RestController()
 @RequestMapping("api/filaments/material/")
 public class FilamentMaterialController {
+    private final FilamentMaterialService filamentMaterialService;
     @Autowired
-    FilamentMaterialService filamentMaterialService;
-    @Autowired
-    FilamentMaterialRepository filamentMaterialRepository;
-    @PostMapping("get-all-and-add/")
-    public ResponseEntity<FilamentMaterial> addNewFilamentMaterial(
+    public FilamentMaterialController(FilamentMaterialService filamentMaterialService) {
+        this.filamentMaterialService = filamentMaterialService;
+    }
+
+    @PostMapping("add/")
+    public ResponseEntity<Void> addNewFilamentMaterial(
             @Valid
-            @RequestBody FilamentMaterialForm form,
+            @RequestBody FilamentMaterialRequest form,
             HttpServletRequest request
     ){
-        return ResponseEntity.status(HttpStatus.CREATED).body(filamentMaterialService.addNewMaterial(request,form));
+        filamentMaterialService.addNewMaterial(request,form);
+        return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
-    @GetMapping("get-all-and-add/")
-    public ResponseEntity<List<FilamentMaterial>> getAllFilamentsMaterial(){
-        return ResponseEntity.status(HttpStatus.OK).body(filamentMaterialRepository.findAll());
+    @GetMapping("get/all/")
+    public ResponseEntity<List<FilamentMaterialDTO>> getAllFilamentsMaterial(){
+        return ResponseEntity.status(HttpStatus.OK).body(filamentMaterialService.getAll());
     }
     @DeleteMapping("delete/{id}/")
     public ResponseEntity<Void> deleteFilamentsMaterial(@PathVariable Long id){

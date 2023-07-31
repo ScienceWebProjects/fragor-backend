@@ -1,10 +1,10 @@
-package com.filament.measurement.Filament.Form;
+package com.filament.measurement.Filament.Request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class FilamentColorForm {
+public class FilamentColorRequest {
 
     @NotBlank(message = "Filament's color can't be blank")
     private String color;

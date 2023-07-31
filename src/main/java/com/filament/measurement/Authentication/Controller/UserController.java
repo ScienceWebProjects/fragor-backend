@@ -3,10 +3,6 @@ package com.filament.measurement.Authentication.Controller;
 import com.filament.measurement.Authentication.DTO.AuthenticationTokenDTO;
 import com.filament.measurement.Authentication.DTO.UserPermissionDTO;
 import com.filament.measurement.Authentication.Request.*;
-import com.filament.measurement.Authentication.Model.User;
-import com.filament.measurement.Authentication.Repository.CompanyRepository;
-import com.filament.measurement.Authentication.Repository.UserRepository;
-import com.filament.measurement.Authentication.Service.JwtService;
 import com.filament.measurement.Authentication.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -15,23 +11,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
 @RequestMapping("api/account/")
 @CrossOrigin
 public class UserController {
+    private final UserService service;
+
     @Autowired
-    UserRepository userRepository;
-    @Autowired
-    CompanyRepository companyRepository;
-    @Autowired
-    UserService service;
-    @Autowired
-    JwtService jwtService;
+    public UserController(UserService service) {
+        this.service = service;
+    }
+
     @PostMapping("registration/")
     public ResponseEntity<Void> createUser(@Valid @RequestBody UserRegistrationRequest form){
         service.userRegistration(form);

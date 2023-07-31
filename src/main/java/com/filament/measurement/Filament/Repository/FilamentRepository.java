@@ -19,7 +19,7 @@ public interface FilamentRepository extends JpaRepository<Filament,Long> {
             AND(:material IS NULL OR f.material =:material)AND f.quantity > :quantity 
             AND f.company =:company ORDER BY f.quantity DESC
             """)
-    List<Filament> findByColorAndMaterialAndQuantityLessThanAndCompany(
+    List<Filament> findByColorAndMaterialAndCompanyAndQuantityLessThan(
             FilamentColor color,
             FilamentMaterial material,
             double quantity,

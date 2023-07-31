@@ -1,6 +1,7 @@
 package com.filament.measurement.Filament.Controller;
 
-import com.filament.measurement.Filament.Form.FilamentColorForm;
+import com.filament.measurement.Filament.DTO.FilamentColorDTO;
+import com.filament.measurement.Filament.Request.FilamentColorRequest;
 import com.filament.measurement.Filament.Model.FilamentColor;
 import com.filament.measurement.Filament.Service.FilamentColorService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,24 +12,29 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin
 @RestController
 @RequestMapping("api/filaments/color/")
 public class FilamentColorController {
-    @Autowired
-    FilamentColorService filamentColorService;
+    private final FilamentColorService filamentColorService;
 
-    @GetMapping("get-all-and-add/")
-    public ResponseEntity<List<FilamentColor>> getAllCompanyFilamentsColor(HttpServletRequest request){
+    @Autowired
+    public FilamentColorController(FilamentColorService filamentColorService) {
+        this.filamentColorService = filamentColorService;
+    }
+
+    @GetMapping("get/all/")
+    public ResponseEntity<List<FilamentColorDTO>> getAllCompanyFilamentsColor(HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(filamentColorService.getAllColor(request));
     }
-    @PostMapping("get-all-and-add/")
-    public ResponseEntity<FilamentColor> addNewFilamentsColor(
+    @PostMapping("add/")
+    public ResponseEntity<Void> addNewFilamentsColor(
             @Valid
-            @RequestBody FilamentColorForm form,
+            @RequestBody FilamentColorRequest form,
             HttpServletRequest request
     ){
-        return ResponseEntity.status(HttpStatus.CREATED).body(filamentColorService.addNewFilamentsColor(form,request));
+        filamentColorService.addNewFilamentsColor(form,request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
     @DeleteMapping("delete/{id}/")
     public ResponseEntity<Void> deleteFilamentsColor(@PathVariable Long id, HttpServletRequest request){

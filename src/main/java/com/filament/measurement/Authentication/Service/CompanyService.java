@@ -10,10 +10,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+
 public class CompanyService {
+    private final CompanyRepository companyRepository;
     @Autowired
-    CompanyRepository companyRepository;
+    public CompanyService(CompanyRepository companyRepository) {
+        this.companyRepository = companyRepository;
+    }
+
     public Company addCompany (CompanyRequest form){
         Company company = Company.builder()
                 .name(form.getName())

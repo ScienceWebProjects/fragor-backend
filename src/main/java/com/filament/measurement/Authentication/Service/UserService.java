@@ -27,24 +27,35 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
-    @Autowired
     private final UserRepository userRepository;
-    @Autowired
     private final PasswordEncoder passwordEncoder;
-    @Autowired
     private final CompanyRepository companyRepository;
-    @Autowired
     private final AuthenticationManager authenticationManager;
-    @Autowired
     private final AuthenticationTokenDTOMapper authenticationTokenDTOMapper;
-    @Autowired
     private final UserPermissionDTOMapper userPermissionDTOMapper;
-    @Autowired
     private final JwtService jwtService;
-    @Autowired
     private final TokenRepository tokenRepository;
+    @Autowired
+    public UserService(
+            JwtService jwtService,
+            UserRepository userRepository,
+            TokenRepository tokenRepository,
+            PasswordEncoder passwordEncoder,
+            CompanyRepository companyRepository,
+            AuthenticationManager authenticationManager,
+            UserPermissionDTOMapper userPermissionDTOMapper,
+            AuthenticationTokenDTOMapper authenticationTokenDTOMapper
+    ) {
+        this.jwtService = jwtService;
+        this.userRepository = userRepository;
+        this.tokenRepository = tokenRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.companyRepository = companyRepository;
+        this.authenticationManager = authenticationManager;
+        this.userPermissionDTOMapper = userPermissionDTOMapper;
+        this.authenticationTokenDTOMapper = authenticationTokenDTOMapper;
+    }
 
     public void userRegistration(UserRegistrationRequest form){
         Company company = companyRepository.findByToken(form.getToken()).orElseThrow();

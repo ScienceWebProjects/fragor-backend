@@ -1,6 +1,8 @@
 package com.filament.measurement.Printer.Controller;
 
+import com.filament.measurement.Printer.DTO.PrinterModelDTO;
 import com.filament.measurement.Printer.Model.PrinterModel;
+import com.filament.measurement.Printer.Request.PrinterModelRequest;
 import com.filament.measurement.Printer.Service.PrinterModelService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,18 +12,23 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
-
+@CrossOrigin
 @RestController
 @RequestMapping("/api/printer/model/")
 public class PrinterModelController {
+    private final PrinterModelService printerModelService;
     @Autowired
-    PrinterModelService printerModelService;
-    @PostMapping("get-all-and-add/")
-    public ResponseEntity<PrinterModel> addPrinterModel(@RequestBody HashMap<String,String> model, HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(printerModelService.add(model,request));
+    public PrinterModelController(PrinterModelService printerModelService) {
+        this.printerModelService = printerModelService;
     }
-    @GetMapping("get-all-and-add/")
-    public ResponseEntity<List<PrinterModel>> getAllPrinterModel(HttpServletRequest request){
+
+    @PostMapping("add/")
+    public ResponseEntity<Void> addPrinterModel(@RequestBody PrinterModelRequest model, HttpServletRequest request){
+        printerModelService.add(model,request);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+    @GetMapping("get/all/")
+    public ResponseEntity<List<PrinterModelDTO>> getAllPrinterModel(HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(printerModelService.getAll(request));
     }
     @DeleteMapping("delete/{id}/")
