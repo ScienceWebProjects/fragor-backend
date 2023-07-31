@@ -49,12 +49,8 @@ public class FilamentColorService {
     )
     {
         User user = jwtService.extractUser(request);
-        filamentColorExists(user.getCompany(),form.getColor());
-        FilamentColor filamentColor = FilamentColor.builder()
-                .color(form.getColor())
-                .company(user.getCompany())
-                .build();
-        filamentColorRepository.save(filamentColor);
+        filamentColorDoesNotExists(user.getCompany(),form.getColor());
+        saveNewFilamentIntoDb(user.getCompany(),form.getColor());
     }
 
     public void deleteFilamentColor(Long id, HttpServletRequest request) {
@@ -64,10 +60,15 @@ public class FilamentColorService {
         filamentColorRepository.delete(filamentColor.get());
     }
 
-    private void filamentColorExists(Company company,String color){
+    private void filamentColorDoesNotExists(Company company, String color){
         if(filamentColorRepository.colorExists(company, color))
             throw new CustomValidationException("Color already exists");
     }
 
-//    private void saveNewFilament(Company company,)
+    private void saveNewFilamentIntoDb(Company company,String color){
+        filamentColorRepository.save(FilamentColor.builder()
+                .color(color)
+                .company(company)
+                .build());
+    }
 }

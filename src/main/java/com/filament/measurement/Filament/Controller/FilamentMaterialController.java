@@ -1,5 +1,6 @@
 package com.filament.measurement.Filament.Controller;
 
+import com.filament.measurement.Filament.DTO.FilamentMaterialDTO;
 import com.filament.measurement.Filament.Request.FilamentMaterialRequest;
 import com.filament.measurement.Filament.Model.FilamentMaterial;
 import com.filament.measurement.Filament.Repository.FilamentMaterialRepository;
@@ -17,25 +18,23 @@ import java.util.List;
 @RequestMapping("api/filaments/material/")
 public class FilamentMaterialController {
     private final FilamentMaterialService filamentMaterialService;
-    private final FilamentMaterialRepository filamentMaterialRepository;
     @Autowired
-    public FilamentMaterialController(FilamentMaterialService filamentMaterialService,
-                                      FilamentMaterialRepository filamentMaterialRepository) {
+    public FilamentMaterialController(FilamentMaterialService filamentMaterialService) {
         this.filamentMaterialService = filamentMaterialService;
-        this.filamentMaterialRepository = filamentMaterialRepository;
     }
 
     @PostMapping("add/")
-    public ResponseEntity<FilamentMaterial> addNewFilamentMaterial(
+    public ResponseEntity<Void> addNewFilamentMaterial(
             @Valid
             @RequestBody FilamentMaterialRequest form,
             HttpServletRequest request
     ){
-        return ResponseEntity.status(HttpStatus.CREATED).body(filamentMaterialService.addNewMaterial(request,form));
+        filamentMaterialService.addNewMaterial(request,form);
+        return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
     @GetMapping("get/all/")
-    public ResponseEntity<List<FilamentMaterial>> getAllFilamentsMaterial(){
-        return ResponseEntity.status(HttpStatus.OK).body(filamentMaterialRepository.findAll());
+    public ResponseEntity<List<FilamentMaterialDTO>> getAllFilamentsMaterial(){
+        return ResponseEntity.status(HttpStatus.OK).body(filamentMaterialService.getAll());
     }
     @DeleteMapping("delete/{id}/")
     public ResponseEntity<Void> deleteFilamentsMaterial(@PathVariable Long id){

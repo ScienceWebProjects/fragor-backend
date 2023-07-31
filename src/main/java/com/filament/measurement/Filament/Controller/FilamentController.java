@@ -37,7 +37,7 @@ public class FilamentController {
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.getFilament(id,request));
     }
     @PatchMapping("{id}/")
-    private ResponseEntity<Filament> updateFilament(
+    private ResponseEntity<FilamentDTO> updateFilament(
             @Valid
             @PathVariable Long id,
             HttpServletRequest request,
@@ -73,7 +73,7 @@ public class FilamentController {
     }
 
     @GetMapping("/add/{amount}/")
-    private ResponseEntity<ArrayList<Filament>> addRandomFilaments(@PathVariable int amount,HttpServletRequest request){
+    private ResponseEntity<List<Filament>> addRandomFilaments(@PathVariable int amount,HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.addRandomFilaments(amount,request));
     }
 
