@@ -11,6 +11,5 @@ public interface DeviceRepository extends JpaRepository<Device,Long> {
 
     Optional<Device> findByPrinterId(Long id);
     Optional<Device> findByCompanyAndId(Company company,Long id);
-
     Optional<Device> findByIp(InetAddress ip);
 }
