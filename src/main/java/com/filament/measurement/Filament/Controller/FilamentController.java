@@ -24,19 +24,19 @@ public class FilamentController {
         this.filamentService = filamentService;
     }
 
-    @PostMapping("get-all-and-add/")
+    @PostMapping("add/")
     private ResponseEntity<FilamentDTO> addFilament(@RequestBody FilamentRequest form, HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(filamentService.addFilament(form,request));
     }
-    @GetMapping("get-all-and-add/")
+    @GetMapping("get/all/")
     private ResponseEntity<List<FilamentDTO>> getAllFilaments(HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.getAllFilaments(request));
     }
-    @GetMapping("{id}/")
+    @GetMapping("get/{id}/")
     private ResponseEntity<FilamentDTO> getFilament (@PathVariable Long id, HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.getFilament(id,request));
     }
-    @PatchMapping("{id}/")
+    @PatchMapping("update/{id}/")
     private ResponseEntity<FilamentDTO> updateFilament(
             @Valid
             @PathVariable Long id,
@@ -44,7 +44,7 @@ public class FilamentController {
             @RequestBody FilamentRequest form){
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.updateFilament(id,request,form));
     }
-    @DeleteMapping("{id}/")
+    @DeleteMapping("delete/{id}/")
     private ResponseEntity<Void> deleteFilament(@PathVariable Long id,HttpServletRequest request){
         filamentService.deleteFilament(id,request);
         return ResponseEntity.noContent().build();

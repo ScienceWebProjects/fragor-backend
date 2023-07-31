@@ -1,4 +1,9 @@
 package com.filament.measurement.Printer.DTO;
 
-public record PrinterModel() {
-}
+import lombok.Builder;
+
+@Builder
+public record PrinterModelDTO(
+        Long id,
+        String model
+) {}

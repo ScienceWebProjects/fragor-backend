@@ -1,2 +1,8 @@
-package com.filament.measurement.Printer.Request;public class PrinterModelRequest {
+package com.filament.measurement.Printer.Request;
+
+import lombok.Data;
+
+@Data
+public class PrinterModelRequest {
+    private String model;
 }

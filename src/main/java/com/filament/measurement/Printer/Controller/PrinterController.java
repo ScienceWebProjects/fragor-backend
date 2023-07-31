@@ -1,6 +1,7 @@
 package com.filament.measurement.Printer.Controller;
 
-import com.filament.measurement.Printer.Request.PrinterFormRequest;
+import com.filament.measurement.Printer.DTO.PrinterDTO;
+import com.filament.measurement.Printer.Request.PrinterRequest;
 import com.filament.measurement.Printer.Model.Printer;
 import com.filament.measurement.Printer.Service.PrinterService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,8 +18,8 @@ public class PrinterController {
     @Autowired
     PrinterService printerService;
     @PostMapping("add/")
-    public ResponseEntity<Printer> add(@RequestBody PrinterFormRequest form, HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(printerService.add(form,request));
+    public ResponseEntity<PrinterDTO> add(@RequestBody PrinterRequest form, HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(printerService.addPrinter(form,request));
     }
     @GetMapping("get/")
     public ResponseEntity<List<Printer>> getAll(HttpServletRequest request){
