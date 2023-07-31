@@ -1,5 +1,6 @@
 package com.filament.measurement.Device.Controller;
 
+import com.filament.measurement.Device.DTO.DeviceDTO;
 import com.filament.measurement.Device.Model.Device;
 import com.filament.measurement.Device.Service.DeviceService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,13 +12,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/device/")
 public class DeviceController {
-    @Autowired
-    DeviceService deviceService;
+    private final DeviceService deviceService;
+    public DeviceController(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
     @GetMapping("connect/{printerId}/")
-    public ResponseEntity<Device> addDevdsadice(@PathVariable Long printerId, HttpServletRequest request){
-        Device device = deviceService.add(printerId,request);
-        if(device == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        return ResponseEntity.status(HttpStatus.CREATED).body(device);
+    public ResponseEntity<DeviceDTO> device(@PathVariable Long printerId, HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.add(printerId,request));
     }
     @DeleteMapping("delete/{id}/")
     public ResponseEntity<Void> delete(@PathVariable Long id,HttpServletRequest request){

@@ -16,14 +16,12 @@ import com.filament.measurement.Authentication.Repository.CompanyRepository;
 import com.filament.measurement.Authentication.Repository.TokenRepository;
 import com.filament.measurement.Authentication.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +29,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CompanyRepository companyRepository;
-    private final AuthenticationManager authenticationManager;
     private final AuthenticationTokenDTOMapper authenticationTokenDTOMapper;
     private final UserPermissionDTOMapper userPermissionDTOMapper;
     private final JwtService jwtService;
@@ -43,7 +40,6 @@ public class UserService {
             TokenRepository tokenRepository,
             PasswordEncoder passwordEncoder,
             CompanyRepository companyRepository,
-            AuthenticationManager authenticationManager,
             UserPermissionDTOMapper userPermissionDTOMapper,
             AuthenticationTokenDTOMapper authenticationTokenDTOMapper
     ) {
@@ -52,7 +48,6 @@ public class UserService {
         this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.companyRepository = companyRepository;
-        this.authenticationManager = authenticationManager;
         this.userPermissionDTOMapper = userPermissionDTOMapper;
         this.authenticationTokenDTOMapper = authenticationTokenDTOMapper;
     }
@@ -60,39 +55,23 @@ public class UserService {
     public void userRegistration(UserRegistrationRequest form){
         Company company = companyRepository.findByToken(form.getToken()).orElseThrow();
         Role role = Role.COMMON_USER;
-
-        if(company.getName().equals("FraGorrrrrrrrr")) role = Role.OWNER;
-
-        User user = User.builder()
-                .email(form.getEmail())
-                .firstName(form.getFirstName())
-                .lastName(form.getLastName())
-                .password(passwordEncoder.encode(form.getPassword()))
-                .company(company)
-                .role(role)
-                .build();
-        userRepository.save(user);
+        if(company.getName().equals("FraGor")) role = Role.OWNER;
+        saveUserIntoDb(form, company, role);
     }
-    public AuthenticationTokenDTO userLogin (UserLoginRequest form){
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        form.getEmail(),
-                        form.getPassword()
-                )
-        );
-        User user = userRepository.findByEmail(form.getEmail()).orElseThrow();
+
+    public AuthenticationTokenDTO userLoginViaPassword(UserLoginRequest form){
+        User user = authenticateUserViaPassword(form);
         String jwt = jwtService.generateToken(user);
-        Token token = Token.builder()
-                .user(user)
-                .token(jwt)
-                .tokenType(TokenType.BEARER)
-                .revoked(false)
-                .revoked(false)
-                .build();
-        revokeAllUserTokens(user);
-        tokenRepository.save(token);
+        createUserToken(user,jwt);
         return authenticationTokenDTOMapper.apply(jwt,user.getRole());
     }
+    public AuthenticationTokenDTO userLoginViaPin(UserLoginRequest form) {
+        User user = authenticateUserViaPin(form);
+        String jwt = jwtService.generateToken(user);
+        createUserToken(user,jwt);
+        return authenticationTokenDTOMapper.apply(jwt,user.getRole());
+    }
+
     public void deleteUserByMaster(String email, HttpServletRequest request){
         User masterUser = jwtService.extractUser(request);
         User deleteUser = userRepository.findByEmail(email).orElseThrow(() -> new NotFound404Exception("No found user by email"));
@@ -143,6 +122,46 @@ public class UserService {
             token.setRevoked(true);
         });
         tokenRepository.saveAll(validTokens);
+    }
+    private void createUserToken(User user, String jwt) {
+        Token token = Token.builder()
+                .user(user)
+                .token(jwt)
+                .tokenType(TokenType.BEARER)
+                .revoked(false)
+                .revoked(false)
+                .build();
+        revokeAllUserTokens(user);
+        tokenRepository.save(token);
+    }
+    private User getUser(String email){
+        Optional<User> user = userRepository.findByEmail(email);
+        if(user.isEmpty()) throw new CustomValidationException("Login incorrect");
+        return user.get();
+    }
+    private User authenticateUserViaPassword(UserLoginRequest form) {
+        User user = getUser(form.getEmail());
+        if(!passwordEncoder.matches(form.getPassword(), user.getPassword()))
+            throw new CustomValidationException("Password incorrect");
+        return user;
+    }
+    private User authenticateUserViaPin(UserLoginRequest form) {
+        User user = getUser(form.getEmail());
+        if(!passwordEncoder.matches(form.getPin(), user.getPin()))
+            throw new CustomValidationException("Pin incorrect");
+        return user;
+    }
+    private void saveUserIntoDb(UserRegistrationRequest form, Company company, Role role) {
+        User user = User.builder()
+                .email(form.getEmail())
+                .firstName(form.getFirstName())
+                .lastName(form.getLastName())
+                .password(passwordEncoder.encode(form.getPassword()))
+                .pin(passwordEncoder.encode(form.getPin()))
+                .company(company)
+                .role(role)
+                .build();
+        userRepository.save(user);
     }
 
 

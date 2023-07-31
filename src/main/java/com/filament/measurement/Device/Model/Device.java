@@ -21,10 +21,8 @@ public class Device {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIgnore
     private Company company;
     @OneToOne(cascade = CascadeType.ALL)
-    @JsonIgnore
     private Printer printer;
     private InetAddress ip;
     private int port;

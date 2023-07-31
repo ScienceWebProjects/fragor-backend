@@ -5,6 +5,7 @@ import com.filament.measurement.Validation.Anotation.PasswordMatch;
 import com.filament.measurement.Validation.Anotation.UniqueEmail;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 @Data
 @PasswordMatch
@@ -29,5 +30,8 @@ public class UserRegistrationRequest {
     @NotBlank(message = "Token can't be blank")
     @CompanyTokenExist
     private String token;
+
+    @NotNull
+    private String pin;
 
 }
