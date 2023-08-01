@@ -24,7 +24,6 @@ public class FilamentColorService {
     private final JwtService jwtService;
     private final FilamentColorRepository filamentColorRepository;
     private final FilamentColorDTOMapper filamentColorDTOMapper;
-    @Autowired
     public FilamentColorService(
             JwtService jwtService,
             FilamentColorRepository filamentColorRepository,

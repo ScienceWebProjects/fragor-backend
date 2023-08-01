@@ -13,12 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-@CrossOrigin
 @RestController()
 @RequestMapping("api/filaments/material/")
+@CrossOrigin
 public class FilamentMaterialController {
     private final FilamentMaterialService filamentMaterialService;
-    @Autowired
     public FilamentMaterialController(FilamentMaterialService filamentMaterialService) {
         this.filamentMaterialService = filamentMaterialService;
     }

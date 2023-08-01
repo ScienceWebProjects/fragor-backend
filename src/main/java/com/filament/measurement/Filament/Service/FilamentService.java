@@ -35,7 +35,6 @@ public class FilamentService {
     private final FilamentColorRepository filamentColorRepository;
     private final FilamentMaterialRepository filamentMaterialRepository;
     private final PrinterFilamentsRepository printerFilamentsRepository;
-    @Autowired
     public FilamentService(
             JwtService jwtService,
             DeviceRepository deviceRepository,
@@ -96,6 +95,7 @@ public class FilamentService {
         Filament filament = getFilament(user,id);
         filamentRepository.delete(filament);
     }
+
     public List<Filament> addRandomFilaments(int amount, HttpServletRequest request) {
         // this is dummy function only for developer purpose
         List<Filament> filaments = new LinkedList<>();
@@ -177,6 +177,7 @@ public class FilamentService {
         if (filament.isEmpty()) throw new NotFound404Exception("Filament doesn't found.");
         return filament.get();
     }
+
     private FilamentColor getFilamentColor(String color,User user){
         Optional<FilamentColor> filamentColor = filamentColorRepository.findByColorAndCompany(
                 color,user.getCompany()
@@ -184,11 +185,13 @@ public class FilamentService {
         if(filamentColor.isEmpty()) throw new NotFound404Exception("Filament's color doesn't found.");
         return filamentColor.get();
     }
+
     private FilamentMaterial getFilamentMaterial(String material){
         Optional<FilamentMaterial> filamentMaterial = filamentMaterialRepository.findByMaterial(material);
         if(filamentMaterial.isEmpty()) throw new NotFound404Exception("Filament's material doesn't found.");
         return filamentMaterial.get();
     }
+
     private Filament saveFilamentIntoTheDB(
             Company company,
             FilamentRequest form,
