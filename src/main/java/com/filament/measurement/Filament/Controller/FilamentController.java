@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+@CrossOrigin
+
 @RestController
 @RequestMapping("api/filaments/")
-@CrossOrigin
 public class FilamentController {
     private final  FilamentService filamentService;
     public FilamentController(FilamentService filamentService) {

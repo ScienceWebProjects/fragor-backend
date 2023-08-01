@@ -8,11 +8,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
+@CrossOrigin
 @RestController
 @RequestMapping("/api/printer/")
-@CrossOrigin
 public class PrinterController {
     private final PrinterService printerService;
 

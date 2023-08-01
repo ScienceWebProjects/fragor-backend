@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
+@CrossOrigin
+
 @RestController
 @RequestMapping("/api/printer/model/")
-@CrossOrigin
 public class PrinterModelController {
     private final PrinterModelService printerModelService;
 

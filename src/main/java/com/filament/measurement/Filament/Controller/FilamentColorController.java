@@ -12,9 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+@CrossOrigin
+
 @RestController
 @RequestMapping("api/filaments/color/")
-@CrossOrigin
 public class FilamentColorController {
     private final FilamentColorService filamentColorService;
 
