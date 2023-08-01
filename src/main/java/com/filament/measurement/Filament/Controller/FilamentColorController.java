@@ -39,6 +39,6 @@ public class FilamentColorController {
     @DeleteMapping("delete/{id}/")
     public ResponseEntity<Void> deleteFilamentsColor(@PathVariable Long id, HttpServletRequest request){
         filamentColorService.deleteFilamentColor(id, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 }

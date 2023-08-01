@@ -51,7 +51,7 @@ public class FilamentController {
     }
 
     @GetMapping("filter/{color}/{material}/{quantity}/")
-    private ResponseEntity<List<Filament>> getFilteredFilaments(
+    private ResponseEntity<List<FilamentDTO>> getFilteredFilaments(
             @PathVariable String color,
             @PathVariable String material,
             @PathVariable double quantity,
@@ -67,14 +67,15 @@ public class FilamentController {
 
     }
     @PutMapping("subtraction/")
-    private ResponseEntity.BodyBuilder subtraction(@RequestBody FilamentSubtractionRequest form, HttpServletRequest request){
+    private ResponseEntity<Void> subtraction(@RequestBody FilamentSubtractionRequest form, HttpServletRequest request){
         filamentService.subtraction(form,request);
-        return ResponseEntity.ok();
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @GetMapping("/add/{amount}/")
-    private ResponseEntity<List<Filament>> addRandomFilaments(@PathVariable int amount,HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.OK).body(filamentService.addRandomFilaments(amount,request));
+    private ResponseEntity<Void> addRandomFilaments(@PathVariable int amount,HttpServletRequest request){
+        filamentService.addRandomFilaments(amount,request);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
 }

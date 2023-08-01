@@ -10,6 +10,10 @@ import java.util.function.Function;
 public class FilamentMaterialDTOMapper implements Function<FilamentMaterial, FilamentMaterialDTO> {
     @Override
     public FilamentMaterialDTO apply(FilamentMaterial filamentMaterial) {
-        return null;
+        return FilamentMaterialDTO.builder()
+                .material(filamentMaterial.getMaterial())
+                .hotend(filamentMaterial.getHotend())
+                .hotbed(filamentMaterial.getHotbed())
+                .build();
     }
 }

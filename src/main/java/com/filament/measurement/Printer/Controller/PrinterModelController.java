@@ -26,7 +26,7 @@ public class PrinterModelController {
     @PostMapping("add/")
     public ResponseEntity<Void> addPrinterModel(@RequestBody PrinterModelRequest model, HttpServletRequest request){
         printerModelService.add(model,request);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
     @GetMapping("get/all/")
     public ResponseEntity<List<PrinterModelDTO>> getAllPrinterModel(HttpServletRequest request){

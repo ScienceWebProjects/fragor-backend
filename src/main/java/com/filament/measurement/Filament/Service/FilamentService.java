@@ -96,7 +96,7 @@ public class FilamentService {
         filamentRepository.delete(filament);
     }
 
-    public List<Filament> addRandomFilaments(int amount, HttpServletRequest request) {
+    public void addRandomFilaments(int amount, HttpServletRequest request) {
         // this is dummy function only for developer purpose
         List<Filament> filaments = new LinkedList<>();
         User user = jwtService.extractUser(request);
@@ -116,10 +116,9 @@ public class FilamentService {
             );
         }
         filamentRepository.saveAll(filaments);
-        return filaments;
     }
 
-    public List<Filament> getFilteredFilament(
+    public List<FilamentDTO> getFilteredFilament(
             String color,
             String material,
             double quantity,
@@ -129,15 +128,17 @@ public class FilamentService {
         FilamentMaterial filamentMaterial = null;
         User user = jwtService.extractUser(request);
 
-        if(!color.equals("all")) filamentColor=getFilamentColor(color,user);
+        if(!color.equals("all")) filamentColor = getFilamentColor(color,user);
         if(!material.equals("all")) filamentMaterial = getFilamentMaterial(material);
 
         return filamentRepository.findByColorAndMaterialAndCompanyAndQuantityLessThan(
                 filamentColor,
                 filamentMaterial,
-                quantity,
-                user.getCompany()
-        );
+                user.getCompany(),
+                quantity
+                ).stream()
+                .map(filamentDTOMapper)
+                .collect(Collectors.toList());
     }
 
     public void subtraction(FilamentSubtractionRequest form, HttpServletRequest request) {
