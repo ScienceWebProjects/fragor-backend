@@ -65,6 +65,7 @@ public class UserService {
         createUserToken(user,jwt);
         return authenticationTokenDTOMapper.apply(jwt,user.getRole());
     }
+
     public AuthenticationTokenDTO userLoginViaPin(UserLoginRequest form) {
         User user = authenticateUserViaPin(form);
         String jwt = jwtService.generateToken(user);
@@ -78,6 +79,7 @@ public class UserService {
         isUserInCompany(masterUser,deleteUser);
         userRepository.deleteById(deleteUser.getId());
     }
+
     public List<UserPermissionDTO> getUsersPermissions(HttpServletRequest request) {
         User masterUser = jwtService.extractUser(request);
         List<User> companyUsers = masterUser.getCompany().getUsers();
@@ -85,6 +87,7 @@ public class UserService {
                 .map(userPermissionDTOMapper)
                 .collect(Collectors.toList());
     }
+
     public void changeUserPermissionsByMaster(ChangeUserPermissionsRequest form, HttpServletRequest request) {
         User masterUser = jwtService.extractUser(request);
         User user = userRepository.findByEmail(form.getEmail()).orElseThrow(() ->new NotFound404Exception("No found user"));
@@ -93,11 +96,13 @@ public class UserService {
         else user.setRole(Role.COMMON_USER);
         userRepository.save(user);
     }
+
     public void changeUserEmail(ChangeUserEmailRequest form, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
         user.setEmail(form.getEmail());
         userRepository.save(user);
     }
+
     public void changeUserPassword(ChangeUserPasswordRequest form, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
 
@@ -110,10 +115,12 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(form.getPassword()));
         userRepository.save(user);
     }
+
     private void isUserInCompany(User masterUser,User user){
         if (!masterUser.getCompany().equals(user.getCompany()))
             throw new NotFound404Exception("Big brother watching you");
     }
+
     private void revokeAllUserTokens(User user){
         List<Token> validTokens = tokenRepository.findAllValidTokensByUser(user.getId());
         if (validTokens.isEmpty()) return;
@@ -123,6 +130,7 @@ public class UserService {
         });
         tokenRepository.saveAll(validTokens);
     }
+
     private void createUserToken(User user, String jwt) {
         Token token = Token.builder()
                 .user(user)
@@ -134,23 +142,27 @@ public class UserService {
         revokeAllUserTokens(user);
         tokenRepository.save(token);
     }
+
     private User getUser(String email){
         Optional<User> user = userRepository.findByEmail(email);
         if(user.isEmpty()) throw new CustomValidationException("Login incorrect");
         return user.get();
     }
+
     private User authenticateUserViaPassword(UserLoginRequest form) {
         User user = getUser(form.getEmail());
         if(!passwordEncoder.matches(form.getPassword(), user.getPassword()))
             throw new CustomValidationException("Password incorrect");
         return user;
     }
+
     private User authenticateUserViaPin(UserLoginRequest form) {
         User user = getUser(form.getEmail());
-        if(!passwordEncoder.matches(form.getPin(), user.getPin()))
+        if(!passwordEncoder.matches(form.getPin().toString(), user.getPin()))
             throw new CustomValidationException("Pin incorrect");
         return user;
     }
+
     private void saveUserIntoDb(UserRegistrationRequest form, Company company, Role role) {
         User user = User.builder()
                 .email(form.getEmail())

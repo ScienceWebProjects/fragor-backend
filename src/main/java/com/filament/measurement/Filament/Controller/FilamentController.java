@@ -14,12 +14,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-@CrossOrigin
 @RestController
 @RequestMapping("api/filaments/")
+@CrossOrigin
 public class FilamentController {
     private final  FilamentService filamentService;
-    @Autowired
     public FilamentController(FilamentService filamentService) {
         this.filamentService = filamentService;
     }

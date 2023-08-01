@@ -3,17 +3,14 @@ package com.filament.measurement.Authentication.Service;
 import com.filament.measurement.Authentication.Request.CompanyRequest;
 import com.filament.measurement.Authentication.Model.Company;
 import com.filament.measurement.Authentication.Repository.CompanyRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-
 public class CompanyService {
     private final CompanyRepository companyRepository;
-    @Autowired
     public CompanyService(CompanyRepository companyRepository) {
         this.companyRepository = companyRepository;
     }

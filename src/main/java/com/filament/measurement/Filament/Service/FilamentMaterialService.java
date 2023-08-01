@@ -23,7 +23,6 @@ public class FilamentMaterialService {
     private final FilamentMaterialRepository filamentMaterialRepository;
     private final FilamentMaterialDTOMapper filamentMaterialDTOMapper;
 
-    @Autowired
     public FilamentMaterialService(
             JwtService jwtService,
             FilamentMaterialDTOMapper filamentMaterialDTOMapper,
@@ -63,6 +62,4 @@ public class FilamentMaterialService {
             throw new NotFound404Exception("Filament's material not found");
         return filamentMaterial.get();
     }
-
-
 }

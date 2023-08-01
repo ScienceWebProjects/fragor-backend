@@ -24,7 +24,6 @@ import java.util.function.Function;
 public class JwtService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
-    @Autowired
     public JwtService(UserRepository userRepository, TokenRepository tokenRepository) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
