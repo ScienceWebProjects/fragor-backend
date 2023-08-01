@@ -8,11 +8,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
+@CrossOrigin
 @RestController
 @RequestMapping("/api/printer/")
-@CrossOrigin
 public class PrinterController {
     private final PrinterService printerService;
 
@@ -21,14 +21,15 @@ public class PrinterController {
     }
 
     @PostMapping("add/")
-    public ResponseEntity<PrinterDTO> add(@RequestBody PrinterRequest form, HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(printerService.addPrinter(form,request));
+    public ResponseEntity<Void> add(@RequestBody PrinterRequest form, HttpServletRequest request){
+        printerService.addPrinter(form,request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
-    @GetMapping("get/")
-    public ResponseEntity<List<Printer>> getAll(HttpServletRequest request){
+    @GetMapping("get/all/")
+    public ResponseEntity<List<PrinterDTO>> getAll(HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(printerService.getAll(request));
     }
-    @GetMapping("{id}/")
+    @GetMapping("get/{id}/")
     public ResponseEntity<Printer> get(@PathVariable Long id,HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(printerService.get(request,id));
     }

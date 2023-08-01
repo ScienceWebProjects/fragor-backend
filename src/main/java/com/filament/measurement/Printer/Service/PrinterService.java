@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PrinterService {
@@ -53,9 +54,11 @@ public class PrinterService {
         return printer;
     }
 
-    public List<Printer> getAll(HttpServletRequest request) {
+    public List<PrinterDTO> getAll(HttpServletRequest request) {
         Company company = jwtService.extractUser(request).getCompany();
-        return printerRepository.findAllByCompany(company);
+        return printerRepository.findAllByCompany(company).stream()
+                .map(printerDTOMapper)
+                .collect(Collectors.toList());
     }
 
     public Printer get(HttpServletRequest request, Long id) {

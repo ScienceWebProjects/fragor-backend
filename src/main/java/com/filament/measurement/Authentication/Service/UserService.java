@@ -84,16 +84,19 @@ public class UserService {
         User masterUser = jwtService.extractUser(request);
         List<User> companyUsers = masterUser.getCompany().getUsers();
         return companyUsers.stream()
+                .filter(user -> !user.getRole().equals(Role.MASTER_USER))
+                .filter(user -> !user.getRole().equals(Role.OWNER))
                 .map(userPermissionDTOMapper)
                 .collect(Collectors.toList());
     }
 
     public void changeUserPermissionsByMaster(ChangeUserPermissionsRequest form, HttpServletRequest request) {
         User masterUser = jwtService.extractUser(request);
-        User user = userRepository.findByEmail(form.getEmail()).orElseThrow(() ->new NotFound404Exception("No found user"));
+        User user = userRepository.findByEmail(form.getEmail()).orElseThrow(() ->new NotFound404Exception("User not found"));
         isUserInCompany(masterUser,user);
-        if (form.getChanger()) user.setRole(Role.CHANGER_USER);
-        else user.setRole(Role.COMMON_USER);
+        String userRole = user.getRole().name();
+        if (form.getChanger() && userRole.equals("COMMON_USER")) user.setRole(Role.CHANGER_USER);
+        else if(!form.getChanger() && userRole.equals("CHANGER_USER")) user.setRole(Role.COMMON_USER);
         userRepository.save(user);
     }
 

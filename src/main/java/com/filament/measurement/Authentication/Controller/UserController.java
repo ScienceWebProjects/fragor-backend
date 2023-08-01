@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/account/")
 @CrossOrigin
+
 public class UserController {
     private final UserService service;
 
@@ -36,11 +37,11 @@ public class UserController {
     public ResponseEntity<AuthenticationTokenDTO> loginUserViaPin(@RequestBody UserLoginRequest form){
         return ResponseEntity.status(HttpStatus.OK).body(service.userLoginViaPin(form));
     }
-    @DeleteMapping("delete/{email}")
+    @DeleteMapping("delete/{email}/")
     @PreAuthorize("hasAuthority('master:delete')")
-    public ResponseEntity.BodyBuilder deleteUserByMaster(@PathVariable String email, HttpServletRequest request){
+    public ResponseEntity<Void> deleteUserByMaster(@PathVariable String email, HttpServletRequest request){
         service.deleteUserByMaster(email,request);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
     @GetMapping("permission/")
     @PreAuthorize("hasAuthority('master:get')")

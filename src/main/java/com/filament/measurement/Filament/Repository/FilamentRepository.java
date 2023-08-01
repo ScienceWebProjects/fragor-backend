@@ -16,14 +16,16 @@ public interface FilamentRepository extends JpaRepository<Filament,Long> {
     Optional<Filament> findByIdAndCompany(Long id,Company company);
     @Query("""
             SELECT f FROM Filament f WHERE (:color IS NULL OR f.color =:color)
-            AND(:material IS NULL OR f.material =:material)AND f.quantity > :quantity 
-            AND f.company =:company ORDER BY f.quantity DESC
+            AND(:material IS NULL OR f.material =:material)
+            AND f.company =:company
+            AND f.quantity > :quantity
+            ORDER BY f.quantity DESC
             """)
     List<Filament> findByColorAndMaterialAndCompanyAndQuantityLessThan(
             FilamentColor color,
             FilamentMaterial material,
-            double quantity,
-            Company company
-    );
+            Company company,
+            double quantity
+            );
     Optional<Filament> findByUid(Long uid);
 }
