@@ -14,6 +14,7 @@ import com.filament.measurement.Printer.Repository.PrinterRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,6 +50,7 @@ public class PrinterService {
                 .company(company)
                 .workHours(0.0)
                 .printerModel(printerModel)
+                .filaments(Collections.emptyList())
                 .build();
         printerRepository.save(printer);
         return printer;
@@ -61,15 +63,15 @@ public class PrinterService {
                 .collect(Collectors.toList());
     }
 
-    public Printer get(HttpServletRequest request, Long id) {
-        return getPrinter(request,id);
+    public PrinterDTO get(HttpServletRequest request, Long id) {
+        return printerDTOMapper.apply(getPrinter(request,id));
     }
 
     public void delete(Long id, HttpServletRequest request) {
       printerRepository.delete(getPrinter(request,id));
     }
 
-    private Printer getPrinter(HttpServletRequest request, Long id){
+    public Printer getPrinter(HttpServletRequest request, Long id){
         Company company = jwtService.extractUser(request).getCompany();
         Optional<Printer> printer = printerRepository.findByCompanyAndId(company,id);
         if(printer.isEmpty()) throw new CustomValidationException("Printer doesn't exists.");

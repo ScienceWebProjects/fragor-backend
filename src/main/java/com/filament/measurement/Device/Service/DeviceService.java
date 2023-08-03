@@ -47,7 +47,7 @@ public class DeviceService {
         DatagramPacket receivePacket = scanLocalHost();
         validateDevicePassword(receivePacket);
         connectedDevice(printerId);
-        Printer printer = printerService.get(request, printerId);
+        Printer printer = printerService.getPrinter(request, printerId);
         Device device = saveDeviceIntoDb(receivePacket,jwtService.extractUser(request).getCompany(),printer);
         connectDeviceWithPrinter(device,printer);
         return deviceDTOMapper.apply(device);

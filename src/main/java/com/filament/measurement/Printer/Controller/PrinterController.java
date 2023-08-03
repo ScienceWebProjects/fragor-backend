@@ -30,7 +30,7 @@ public class PrinterController {
         return ResponseEntity.status(HttpStatus.OK).body(printerService.getAll(request));
     }
     @GetMapping("get/{id}/")
-    public ResponseEntity<Printer> get(@PathVariable Long id,HttpServletRequest request){
+    public ResponseEntity<PrinterDTO> get(@PathVariable Long id,HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(printerService.get(request,id));
     }
     @DeleteMapping("delete/{id}/")

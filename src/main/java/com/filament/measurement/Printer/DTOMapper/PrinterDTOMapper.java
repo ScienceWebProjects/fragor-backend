@@ -26,7 +26,7 @@ public class PrinterDTOMapper implements Function<Printer, PrinterDTO> {
         return PrinterDTO.builder()
                 .id(printer.getId())
                 .filaments(printer.getFilaments().stream().map(printerFilamentsDTOMapper).collect(Collectors.toList()))
-                .printerModel(printerModelDTOMapper.apply(printer.getPrinterModel()))
+                .model(printer.getPrinterModel().getModel())
                 .name(printer.getName())
                 .workHours(printer.getWorkHours())
                 .build();
