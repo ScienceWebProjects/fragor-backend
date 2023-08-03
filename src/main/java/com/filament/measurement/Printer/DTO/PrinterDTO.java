@@ -10,7 +10,7 @@ public record PrinterDTO (
         long id,
         String name,
         double workHours,
-        PrinterModelDTO printerModel,
+        String model,
         List<PrinterFilamentsDTO> filaments
 )
 {}
