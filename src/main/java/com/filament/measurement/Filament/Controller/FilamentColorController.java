@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class FilamentColorController {
         return ResponseEntity.status(HttpStatus.OK).body(filamentColorService.getAllColor(request));
     }
     @PostMapping("add/")
+    @PreAuthorize("hasAuthority('changer:create')")
     public ResponseEntity<Void> addNewFilamentsColor(
             @Valid
             @RequestBody FilamentColorRequest form,
@@ -37,6 +39,7 @@ public class FilamentColorController {
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
     @DeleteMapping("delete/{id}/")
+    @PreAuthorize("hasAuthority('changer:delete')")
     public ResponseEntity<Void> deleteFilamentsColor(@PathVariable Long id, HttpServletRequest request){
         filamentColorService.deleteFilamentColor(id, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);

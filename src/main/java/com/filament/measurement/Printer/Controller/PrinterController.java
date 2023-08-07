@@ -7,6 +7,7 @@ import com.filament.measurement.Printer.Service.PrinterService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class PrinterController {
     }
 
     @PostMapping("add/")
+    @PreAuthorize("hasAuthority('changer:create')")
     public ResponseEntity<Void> add(@RequestBody PrinterRequest form, HttpServletRequest request){
         printerService.addPrinter(form,request);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
@@ -34,8 +36,9 @@ public class PrinterController {
         return ResponseEntity.status(HttpStatus.OK).body(printerService.get(request,id));
     }
     @DeleteMapping("delete/{id}/")
+    @PreAuthorize("hasAuthority('changer:delete')")
     public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest request){
         printerService.delete(id,request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 }

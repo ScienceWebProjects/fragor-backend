@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class FilamentMaterialController {
     }
 
     @PostMapping("add/")
+    @PreAuthorize("hasAuthority('changer:create')")
     public ResponseEntity<Void> addNewFilamentMaterial(
             @Valid
             @RequestBody FilamentMaterialRequest form,
@@ -36,6 +38,7 @@ public class FilamentMaterialController {
         return ResponseEntity.status(HttpStatus.OK).body(filamentMaterialService.getAll());
     }
     @DeleteMapping("delete/{id}/")
+    @PreAuthorize("hasAuthority('changer:delete')")
     public ResponseEntity<Void> deleteFilamentsMaterial(@PathVariable Long id){
         filamentMaterialService.deleteFilamentMaterial(id);
         return ResponseEntity.noContent().build();
