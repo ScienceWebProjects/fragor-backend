@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -24,6 +25,7 @@ public class PrinterModelController {
     }
 
     @PostMapping("add/")
+    @PreAuthorize("hasAuthority('changer:create')")
     public ResponseEntity<Void> addPrinterModel(@RequestBody PrinterModelRequest model, HttpServletRequest request){
         printerModelService.add(model,request);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
@@ -33,8 +35,9 @@ public class PrinterModelController {
         return ResponseEntity.status(HttpStatus.OK).body(printerModelService.getAll(request));
     }
     @DeleteMapping("delete/{id}/")
+    @PreAuthorize("hasAuthority('changer:delete')")
     private ResponseEntity<Void> deleteModel(@PathVariable Long id,HttpServletRequest request) {
         printerModelService.delete(id,request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 }
