@@ -8,22 +8,24 @@ import com.filament.measurement.Device.Repository.DeviceRepository;
 import com.filament.measurement.Exception.NotFound404Exception;
 import com.filament.measurement.Filament.DTO.FilamentDTO;
 import com.filament.measurement.Filament.DTOMapper.FilamentDTOMapper;
-import com.filament.measurement.Filament.Request.FilamentRequest;
-import com.filament.measurement.Filament.Request.FilamentSubtractionRequest;
 import com.filament.measurement.Filament.Model.Filament;
 import com.filament.measurement.Filament.Model.FilamentColor;
 import com.filament.measurement.Filament.Model.FilamentMaterial;
 import com.filament.measurement.Filament.Repository.FilamentColorRepository;
 import com.filament.measurement.Filament.Repository.FilamentMaterialRepository;
 import com.filament.measurement.Filament.Repository.FilamentRepository;
+import com.filament.measurement.Filament.Request.FilamentRequest;
+import com.filament.measurement.Filament.Request.FilamentSubtractionRequest;
 import com.filament.measurement.Printer.Model.Printer;
 import com.filament.measurement.Printer.Model.PrinterFilaments;
 import com.filament.measurement.Printer.Repository.PrinterFilamentsRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,24 +37,24 @@ public class FilamentService {
     private final FilamentColorRepository filamentColorRepository;
     private final FilamentMaterialRepository filamentMaterialRepository;
     private final PrinterFilamentsRepository printerFilamentsRepository;
+
     public FilamentService(
             JwtService jwtService,
             DeviceRepository deviceRepository,
             FilamentDTOMapper filamentDTOMapper,
             FilamentRepository filamentRepository,
             FilamentColorRepository filamentColorRepository,
-            PrinterFilamentsRepository printerFilamentsRepository,
-            FilamentMaterialRepository filamentMaterialRepository
+            FilamentMaterialRepository filamentMaterialRepository,
+            PrinterFilamentsRepository printerFilamentsRepository
     ) {
         this.jwtService = jwtService;
         this.deviceRepository = deviceRepository;
         this.filamentDTOMapper = filamentDTOMapper;
         this.filamentRepository = filamentRepository;
         this.filamentColorRepository = filamentColorRepository;
-        this.printerFilamentsRepository = printerFilamentsRepository;
         this.filamentMaterialRepository = filamentMaterialRepository;
+        this.printerFilamentsRepository = printerFilamentsRepository;
     }
-
     public FilamentDTO addFilament(FilamentRequest form, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
         FilamentColor filamentColor = getFilamentColor(form.getColor(),user);
@@ -68,7 +70,6 @@ public class FilamentService {
                 .map(filamentDTOMapper)
                 .collect(Collectors.toList());
     }
-
     public FilamentDTO getFilament(Long id, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
         return filamentDTOMapper.apply(getFilament(user,id));
@@ -132,10 +133,10 @@ public class FilamentService {
         if(!material.equals("all")) filamentMaterial = getFilamentMaterial(material);
 
         return filamentRepository.findByColorAndMaterialAndCompanyAndQuantityLessThan(
-                filamentColor,
-                filamentMaterial,
-                user.getCompany(),
-                quantity
+                        filamentColor,
+                        filamentMaterial,
+                        user.getCompany(),
+                        quantity
                 ).stream()
                 .map(filamentDTOMapper)
                 .collect(Collectors.toList());
