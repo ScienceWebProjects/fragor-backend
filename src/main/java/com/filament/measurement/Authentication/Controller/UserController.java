@@ -4,6 +4,7 @@ import com.filament.measurement.Authentication.DTO.AuthenticationTokenDTO;
 import com.filament.measurement.Authentication.DTO.UserPermissionDTO;
 import com.filament.measurement.Authentication.Request.*;
 import com.filament.measurement.Authentication.Service.UserService;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,13 @@ public class UserController {
     public ResponseEntity<AuthenticationTokenDTO> loginUserViaPin(@RequestBody UserLoginRequest form){
         return ResponseEntity.status(HttpStatus.OK).body(service.userLoginViaPin(form));
     }
+
+    @DeleteMapping("logout/")
+    public ResponseEntity<Void> logoutUser (HttpServletRequest request) throws ServletException {
+        service.userLogout(request);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
     @DeleteMapping("delete/{email}/")
     @PreAuthorize("hasAuthority('master:delete')")
     public ResponseEntity<Void> deleteUserByMaster(@PathVariable String email, HttpServletRequest request){

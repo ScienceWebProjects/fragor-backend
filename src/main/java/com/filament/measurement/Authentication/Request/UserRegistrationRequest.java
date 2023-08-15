@@ -31,7 +31,7 @@ public class UserRegistrationRequest {
     @CompanyTokenExist
     private String token;
 
-    @NotNull
+    @NotBlank(message = "Pin can't be blank")
     private String pin;
 
 }

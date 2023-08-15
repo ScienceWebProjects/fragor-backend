@@ -42,14 +42,7 @@ public class SecurityConfig {
 
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .logout(logout -> logout
-                .logoutUrl("/api/account/logout/")
-                .addLogoutHandler(logoutHandler)
-                .logoutSuccessHandler(((
-                        request, response, authentication
-                ) -> SecurityContextHolder.clearContext()))
-        );
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
