@@ -72,12 +72,12 @@ public class FilamentService {
     }
     public FilamentDTO getFilament(Long id, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
-        return filamentDTOMapper.apply(getFilament(user,id));
+        return filamentDTOMapper.apply(getFilamentFromDB(user,id));
     }
 
     public FilamentDTO updateFilament(Long id, HttpServletRequest request, FilamentRequest form) {
         User user = jwtService.extractUser(request);
-        Filament filament = getFilament(user,id);
+        Filament filament = getFilamentFromDB(user,id);
 
         if(!filament.getColor().getColor().equals(form.getColor())){
             FilamentColor filamentColor = getFilamentColor(form.getColor(), user);
@@ -93,7 +93,7 @@ public class FilamentService {
 
     public void deleteFilament(Long id, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
-        Filament filament = getFilament(user,id);
+        Filament filament = getFilamentFromDB(user,id);
         filamentRepository.delete(filament);
     }
 
@@ -174,7 +174,7 @@ public class FilamentService {
         printerFilamentsRepository.save(printerFilaments);
     }
 
-    private Filament getFilament(User user,Long id) {
+    private Filament getFilamentFromDB(User user,Long id) {
         Optional<Filament> filament = filamentRepository.findByIdAndCompany(id, user.getCompany());
         if (filament.isEmpty()) throw new NotFound404Exception("Filament doesn't found.");
         return filament.get();
