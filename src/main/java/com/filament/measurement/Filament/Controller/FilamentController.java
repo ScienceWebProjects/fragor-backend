@@ -38,7 +38,7 @@ public class FilamentController {
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.getFilament(id,request));
     }
     @PatchMapping("update/{id}/")
-//    @PreAuthorize("hasAuthority('changer:update')")
+    @PreAuthorize("hasAuthority('changer:update')")
     public ResponseEntity<FilamentDTO> updateFilament(
             @PathVariable Long id,
             HttpServletRequest request,
@@ -46,7 +46,7 @@ public class FilamentController {
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.updateFilament(id,request,form));
     }
     @DeleteMapping("delete/{id}/")
-//    @PreAuthorize("hasAuthority('changer:delete')")
+    @PreAuthorize("hasAuthority('changer:delete')")
     public ResponseEntity<Void> deleteFilament(@PathVariable Long id,HttpServletRequest request){
         filamentService.deleteFilament(id,request);
         return ResponseEntity.noContent().build();
@@ -69,14 +69,14 @@ public class FilamentController {
 
     }
     @PutMapping("subtraction/")
-//    @PreAuthorize("hasAuthority('device:update')")
+    @PreAuthorize("hasAuthority('device:update')")
     public ResponseEntity<Void> subtraction(@RequestBody FilamentSubtractionRequest form, HttpServletRequest request){
         filamentService.subtraction(form,request);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @GetMapping("/add/{amount}/")
-//    @PreAuthorize("hasAuthority('master:create')")
+    @PreAuthorize("hasAuthority('master:create')")
     public ResponseEntity<Void> addRandomFilaments(@PathVariable int amount,HttpServletRequest request){
         filamentService.addRandomFilaments(amount,request);
         return ResponseEntity.status(HttpStatus.OK).body(null);
