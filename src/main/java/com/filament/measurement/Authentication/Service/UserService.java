@@ -126,6 +126,13 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(form.getPassword()));
         userRepository.save(user);
     }
+    public void changeUserPin(ChangeUserPinRequest form, HttpServletRequest request) {
+        User user = jwtService.extractUser(request);
+        if(!passwordEncoder.matches(form.getPassword(),user.getPassword()))
+            throw new CustomValidationException("Wrong password");
+        user.setPin(passwordEncoder.encode(form.getPin()));
+        userRepository.save(user);
+    }
 
     private void isUserInCompany(User masterUser,User user){
         if (!masterUser.getCompany().equals(user.getCompany()))

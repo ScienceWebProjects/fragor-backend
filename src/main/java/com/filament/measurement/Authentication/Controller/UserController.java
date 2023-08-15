@@ -83,4 +83,14 @@ public class UserController {
         service.changeUserPassword(form,request);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
+    @PutMapping("settings/pin/")
+    public ResponseEntity<Void> changeUserPin(
+            @Valid
+            @RequestBody ChangeUserPinRequest form,
+            HttpServletRequest request
+    ){
+        service.changeUserPin(form,request);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
 }
