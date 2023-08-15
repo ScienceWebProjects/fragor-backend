@@ -15,6 +15,7 @@ import com.filament.measurement.Authentication.Permission.TokenType;
 import com.filament.measurement.Authentication.Repository.CompanyRepository;
 import com.filament.measurement.Authentication.Repository.TokenRepository;
 import com.filament.measurement.Authentication.Repository.UserRepository;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -73,6 +74,13 @@ public class UserService {
         return authenticationTokenDTOMapper.apply(jwt,user.getRole());
     }
 
+    public void userLogout(HttpServletRequest request){
+        String userToken = request.getHeader("Authorization").substring(7);
+        Token token = tokenRepository.findByToken(userToken).get();
+        token.setRevoked(true);
+        token.setExpired(true);
+        tokenRepository.save(token);
+    }
     public void deleteUserByMaster(String email, HttpServletRequest request){
         User masterUser = jwtService.extractUser(request);
         User deleteUser = userRepository.findByEmail(email).orElseThrow(() -> new NotFound404Exception("No found user by email"));
@@ -116,6 +124,13 @@ public class UserService {
             throw new CustomValidationException("Password don't match");
 
         user.setPassword(passwordEncoder.encode(form.getPassword()));
+        userRepository.save(user);
+    }
+    public void changeUserPin(ChangeUserPinRequest form, HttpServletRequest request) {
+        User user = jwtService.extractUser(request);
+        if(!passwordEncoder.matches(form.getPassword(),user.getPassword()))
+            throw new CustomValidationException("Wrong password");
+        user.setPin(passwordEncoder.encode(form.getPin()));
         userRepository.save(user);
     }
 
@@ -178,7 +193,4 @@ public class UserService {
                 .build();
         userRepository.save(user);
     }
-
-
-
 }
