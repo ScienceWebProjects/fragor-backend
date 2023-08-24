@@ -5,12 +5,10 @@ import com.filament.measurement.Authentication.DTO.UserDTO;
 import com.filament.measurement.Authentication.DTOMapper.CompanyDTOMapper;
 import com.filament.measurement.Authentication.DTOMapper.UserDTOMapper;
 import com.filament.measurement.Authentication.Model.User;
-import com.filament.measurement.Authentication.Permission.Role;
 import com.filament.measurement.Authentication.Request.CompanyRequest;
 import com.filament.measurement.Authentication.Model.Company;
 import com.filament.measurement.Authentication.Repository.CompanyRepository;
 import com.filament.measurement.Exception.CustomValidationException;
-import com.filament.measurement.Exception.NotFound404Exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
@@ -50,20 +48,23 @@ public class CompanyService {
                 .map(companyDTOMapper)
                 .collect(Collectors.toList());
     }
-    public List<UserDTO> getCompanyUsers(HttpServletRequest request, Long id) {
+
+    public List<UserDTO> getCompanyUsersByOwner(HttpServletRequest request, Long id) {
         User user = jwtService.extractUser(request);
         Optional<Company> companyOptional = companyRepository.findById(id);
 
         if(companyOptional.isEmpty()) throw new CustomValidationException("Company doesn't exists");
         Company company = companyOptional.get();
-
-        if(!user.getRole().equals(Role.OWNER)){
-            if(!company.getUsers().contains(user))
-                throw new NotFound404Exception("Big brother watching you");
-        }
         return company.getUsers().stream()
                 .map(userDTOMapper)
                 .collect(Collectors.toList());
 
+    }
+
+    public List<UserDTO> getCompanyUsersByMaster(HttpServletRequest request) {
+        User user = jwtService.extractUser(request);
+        return user.getCompany().getUsers().stream()
+                .map(userDTOMapper)
+                .collect(Collectors.toList());
     }
 }

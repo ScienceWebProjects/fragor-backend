@@ -7,7 +7,6 @@ import com.filament.measurement.Authentication.Model.Company;
 import com.filament.measurement.Authentication.Service.CompanyService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,9 +34,14 @@ public class CompanyController {
         return ResponseEntity.status(HttpStatus.OK).body(companyService.getAllCompany());
     }
 
-    @PreAuthorize("hasAuthority('master:get')")
+    @PreAuthorize("hasRole('OWNER')")
     @GetMapping("users/get/{id}/")
-    public ResponseEntity<List<UserDTO>> getCompanyUsers(@PathVariable Long id, HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.OK).body(companyService.getCompanyUsers(request,id));
+    public ResponseEntity<List<UserDTO>> getCompanyUsersByOwner(@PathVariable Long id, HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(companyService.getCompanyUsersByOwner(request,id));
+    }
+    @PreAuthorize("hasAuthority('master:get')")
+    @GetMapping("users/get/")
+    public ResponseEntity<List<UserDTO>> getCompanyUsersByMaster(HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(companyService.getCompanyUsersByMaster(request));
     }
 }
