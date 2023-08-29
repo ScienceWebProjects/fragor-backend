@@ -12,7 +12,7 @@ public class FilamentBrandDTOMapper implements Function<FilamentBrand, FilamentB
     public FilamentBrandDTO apply(FilamentBrand filamentBrand) {
         return FilamentBrandDTO.builder()
                 .id(filamentBrand.getId())
-                .name(filamentBrand.getName())
+                .brand(filamentBrand.getBrand())
                 .build();
     }
 }

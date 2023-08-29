@@ -49,7 +49,7 @@ public class FilamentBrandService {
     private void saveBrandIntoDB(Company company, FilamentBrandRequest form) {
         filamentBrandRepository.save(
                 FilamentBrand.builder()
-                .name(form.getBrand())
+                .brand(form.getBrand())
                 .company(company)
                 .build()
         );

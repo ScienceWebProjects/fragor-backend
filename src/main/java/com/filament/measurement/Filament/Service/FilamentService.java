@@ -9,8 +9,10 @@ import com.filament.measurement.Exception.NotFound404Exception;
 import com.filament.measurement.Filament.DTO.FilamentDTO;
 import com.filament.measurement.Filament.DTOMapper.FilamentDTOMapper;
 import com.filament.measurement.Filament.Model.Filament;
+import com.filament.measurement.Filament.Model.FilamentBrand;
 import com.filament.measurement.Filament.Model.FilamentColor;
 import com.filament.measurement.Filament.Model.FilamentMaterial;
+import com.filament.measurement.Filament.Repository.FilamentBrandRepository;
 import com.filament.measurement.Filament.Repository.FilamentColorRepository;
 import com.filament.measurement.Filament.Repository.FilamentMaterialRepository;
 import com.filament.measurement.Filament.Repository.FilamentRepository;
@@ -35,6 +37,7 @@ public class FilamentService {
     private final FilamentDTOMapper filamentDTOMapper;
     private final FilamentRepository filamentRepository;
     private final FilamentColorRepository filamentColorRepository;
+    private final FilamentBrandRepository filamentBrandRepository;
     private final FilamentMaterialRepository filamentMaterialRepository;
     private final PrinterFilamentsRepository printerFilamentsRepository;
 
@@ -44,6 +47,7 @@ public class FilamentService {
             FilamentDTOMapper filamentDTOMapper,
             FilamentRepository filamentRepository,
             FilamentColorRepository filamentColorRepository,
+            FilamentBrandRepository filamentBrandRepository,
             FilamentMaterialRepository filamentMaterialRepository,
             PrinterFilamentsRepository printerFilamentsRepository
     ) {
@@ -52,6 +56,7 @@ public class FilamentService {
         this.filamentDTOMapper = filamentDTOMapper;
         this.filamentRepository = filamentRepository;
         this.filamentColorRepository = filamentColorRepository;
+        this.filamentBrandRepository = filamentBrandRepository;
         this.filamentMaterialRepository = filamentMaterialRepository;
         this.printerFilamentsRepository = printerFilamentsRepository;
     }
@@ -59,7 +64,8 @@ public class FilamentService {
         User user = jwtService.extractUser(request);
         FilamentColor filamentColor = getFilamentColor(form.getColor(),user);
         FilamentMaterial filamentMaterial = getFilamentMaterial(form.getMaterial());
-        Filament filament = saveFilamentIntoTheDB(user.getCompany(), form, filamentColor, filamentMaterial);
+        FilamentBrand filamentBrand = getFilamentBrand(form.getBrand());
+        Filament filament = saveFilamentIntoTheDB(user.getCompany(), form, filamentColor, filamentMaterial,filamentBrand);
         return filamentDTOMapper.apply(filament);
     }
 
@@ -103,6 +109,7 @@ public class FilamentService {
         User user = jwtService.extractUser(request);
         List<FilamentColor> filamentColor = filamentColorRepository.findAllByCompanyId(user.getCompany().getId());
         List<FilamentMaterial> filamentMaterials = filamentMaterialRepository.findAll();
+        List<FilamentBrand> filamentBrands = filamentBrandRepository.findAllByCompanyId(user.getCompany().getId());
 
         Random random = new Random();
         for(int i=0;i<amount;i++){
@@ -113,6 +120,7 @@ public class FilamentService {
                             .color(filamentColor.get(random.nextInt(filamentColor.size())))
                             .material(filamentMaterials.get(random.nextInt(filamentMaterials.size())))
                             .company(user.getCompany())
+                            .brand(filamentBrands.get(random.nextInt(filamentBrands.size())))
                             .build()
             );
         }
@@ -193,12 +201,18 @@ public class FilamentService {
         if(filamentMaterial.isEmpty()) throw new NotFound404Exception("Filament's material doesn't found.");
         return filamentMaterial.get();
     }
+    private FilamentBrand getFilamentBrand(String brand) {
+        Optional<FilamentBrand> filamentBrand = filamentBrandRepository.findByBrand(brand);
+        if(filamentBrand.isEmpty()) throw new NotFound404Exception("Filament's brand doesn't found.");
+        return filamentBrand.get();
+    }
 
     private Filament saveFilamentIntoTheDB(
             Company company,
             FilamentRequest form,
             FilamentColor filamentColor,
-            FilamentMaterial filamentMaterial
+            FilamentMaterial filamentMaterial,
+            FilamentBrand filamentBrand
     ) {
         Filament filament = Filament.builder()
                 .uid(form.getUid())
@@ -206,6 +220,7 @@ public class FilamentService {
                 .company(company)
                 .quantity(form.getQuantity())
                 .material(filamentMaterial)
+                .brand(filamentBrand)
                 .build();
         filamentRepository.save(filament);
         return filament;

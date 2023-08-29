@@ -6,6 +6,7 @@ import lombok.Builder;
 public record FilamentDTO(
         double quantity,
         String color,
-        String material
+        String material,
+        String brand
 )
 {}

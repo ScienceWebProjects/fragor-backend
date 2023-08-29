@@ -5,5 +5,5 @@ import lombok.Builder;
 @Builder
 public record FilamentBrandDTO(
    Long id,
-   String name
+   String brand
 ) {}

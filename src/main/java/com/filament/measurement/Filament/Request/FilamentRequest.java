@@ -18,4 +18,7 @@ public class FilamentRequest {
 
     @NotNull
     private String material;
+
+    @NotNull
+    private String brand;
 }

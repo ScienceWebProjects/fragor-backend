@@ -14,7 +14,8 @@ public class FilamentDTOMapper implements Function<Filament, FilamentDTO> {
         return new FilamentDTO(
                 filament.getQuantity(),
                 filament.getColor().getColor(),
-                filament.getMaterial().getMaterial()
-        );
+                filament.getMaterial().getMaterial(),
+                filament.getBrand().getBrand()
+                );
     }
 }

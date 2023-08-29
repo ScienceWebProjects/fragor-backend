@@ -13,9 +13,10 @@ import java.util.Optional;
 public interface FilamentBrandRepository extends JpaRepository<FilamentBrand,Long> {
     public List<FilamentBrand> findAllByCompanyId(Long id);
     @Query("""
-            SELECT EXISTS(SELECT 1 FROM FilamentBrand fb WHERE fb.company = ?1 AND fb.name = ?2)
+            SELECT EXISTS(SELECT 1 FROM FilamentBrand fb WHERE fb.company = ?1 AND fb.brand = ?2)
             """)
-    public Boolean brandExists(Company company,String name);
+    public Boolean brandExists(Company company,String brand);
 
     public Optional<FilamentBrand> findByCompanyAndId(Company company,Long id);
+    public Optional<FilamentBrand> findByBrand(String brand);
 }

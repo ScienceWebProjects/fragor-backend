@@ -26,5 +26,8 @@ public class Filament {
     private FilamentColor color;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private  FilamentMaterial material;
+    private FilamentMaterial material;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private FilamentBrand brand;
 }
