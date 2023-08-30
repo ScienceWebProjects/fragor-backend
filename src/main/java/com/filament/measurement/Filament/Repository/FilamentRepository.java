@@ -2,6 +2,7 @@ package com.filament.measurement.Filament.Repository;
 
 import com.filament.measurement.Authentication.Model.Company;
 import com.filament.measurement.Filament.Model.Filament;
+import com.filament.measurement.Filament.Model.FilamentBrand;
 import com.filament.measurement.Filament.Model.FilamentColor;
 import com.filament.measurement.Filament.Model.FilamentMaterial;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,13 +19,15 @@ public interface FilamentRepository extends JpaRepository<Filament,Long> {
     @Query("""
             SELECT f FROM Filament f WHERE (:color IS NULL OR f.color =:color)
             AND(:material IS NULL OR f.material =:material)
+            AND(:brand IS NULL OR f.brand =:brand)
             AND f.company =:company
             AND f.quantity > :quantity
             ORDER BY f.quantity DESC
             """)
-    List<Filament> findByColorAndMaterialAndCompanyAndQuantityLessThan(
+    List<Filament> findByColorAndMaterialAndCompanyAndBrandAndQuantityLessThan(
             FilamentColor color,
             FilamentMaterial material,
+            FilamentBrand brand,
             Company company,
             double quantity
             );

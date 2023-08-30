@@ -52,10 +52,11 @@ public class FilamentController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("filter/{color}/{material}/{quantity}/")
+    @GetMapping("filter/{color}/{material}/{brand}/{quantity}/")
     public ResponseEntity<List<FilamentDTO>> getFilteredFilaments(
             @PathVariable String color,
             @PathVariable String material,
+            @PathVariable String brand,
             @PathVariable double quantity,
             HttpServletRequest request
     ){
@@ -63,8 +64,10 @@ public class FilamentController {
             filamentService.getFilteredFilament(
                     color,
                     material,
+                    brand,
                     quantity,
-                    request)
+                    request
+            )
             );
 
     }

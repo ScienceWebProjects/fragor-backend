@@ -130,19 +130,23 @@ public class FilamentService {
     public List<FilamentDTO> getFilteredFilament(
             String color,
             String material,
+            String brand,
             double quantity,
             HttpServletRequest request
     ) {
         FilamentColor filamentColor = null;
         FilamentMaterial filamentMaterial = null;
+        FilamentBrand filamentBrand = null;
         User user = jwtService.extractUser(request);
 
         if(!color.equals("all")) filamentColor = getFilamentColor(color,user);
         if(!material.equals("all")) filamentMaterial = getFilamentMaterial(material);
+        if(!brand.equals("all")) filamentBrand = getFilamentBrand(brand);
 
-        return filamentRepository.findByColorAndMaterialAndCompanyAndQuantityLessThan(
+        return filamentRepository.findByColorAndMaterialAndCompanyAndBrandAndQuantityLessThan(
                         filamentColor,
                         filamentMaterial,
+                        filamentBrand,
                         user.getCompany(),
                         quantity
                 ).stream()
