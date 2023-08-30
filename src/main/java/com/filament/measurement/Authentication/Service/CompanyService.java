@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,12 +36,33 @@ public class CompanyService {
     }
 
     public Company addCompany (CompanyRequest form){
+        String token = createCompanyToken();
         Company company = Company.builder()
                 .name(form.getName())
-                .token(form.getToken())
+                .token(token)
                 .build();
         companyRepository.save(company);
         return company;
+    }
+
+    private String createCompanyToken() {
+        String CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&";
+        Random random = new Random();
+        int minLength = 20;
+        int maxLength = 30;
+        int length = random.nextInt(minLength,maxLength);
+
+        StringBuilder tokenBuilder = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int randomIndex = random.nextInt(CHARACTERS.length());
+            char randomChar = CHARACTERS.charAt(randomIndex);
+            tokenBuilder.append(randomChar);
+        }
+        String token = tokenBuilder.toString();
+        if(companyRepository.tokenExists(token)){
+            token = createCompanyToken();
+        }
+        return token;
     }
 
     public List<CompanyDTO> getAllCompany() {
