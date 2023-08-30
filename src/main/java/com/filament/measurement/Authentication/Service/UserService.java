@@ -57,6 +57,7 @@ public class UserService {
         Company company = companyRepository.findByToken(form.getToken()).orElseThrow();
         Role role = Role.COMMON_USER;
         if(company.getName().equals("FraGor")) role = Role.OWNER;
+        else if(company.getUsers().isEmpty()) role = Role.MASTER_USER;
         saveUserIntoDb(form, company, role);
     }
 
