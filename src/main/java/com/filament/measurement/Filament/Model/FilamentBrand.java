@@ -8,16 +8,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class FilamentColor {
+public class FilamentBrand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String color;
+    private String brand;
     @ManyToOne(fetch = FetchType.EAGER)
     private Company company;
-
 }

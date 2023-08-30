@@ -12,9 +12,11 @@ public class FilamentDTOMapper implements Function<Filament, FilamentDTO> {
     @Override
     public FilamentDTO apply(Filament filament) {
         return new FilamentDTO(
+                filament.getId(),
                 filament.getQuantity(),
                 filament.getColor().getColor(),
-                filament.getMaterial().getMaterial()
-        );
+                filament.getMaterial().getMaterial(),
+                filament.getBrand().getBrand()
+                );
     }
 }

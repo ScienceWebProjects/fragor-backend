@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder
 public record CompanyDTO(
         Long id,
-        String company
+        String company,
+        String token
 ) {
 }

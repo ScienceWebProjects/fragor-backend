@@ -12,6 +12,7 @@ public class CompanyDTOMapper implements Function<Company,CompanyDTO> {
         return CompanyDTO.builder()
                 .id(company.getId())
                 .company(company.getName())
+                .token(company.getToken())
                 .build();
     }
 }
