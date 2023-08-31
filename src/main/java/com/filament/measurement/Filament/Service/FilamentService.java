@@ -24,10 +24,7 @@ import com.filament.measurement.Printer.Repository.PrinterFilamentsRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -125,6 +122,15 @@ public class FilamentService {
             );
         }
         filamentRepository.saveAll(filaments);
+    }
+    public HashMap<String, Set<String>> getFilamentsFilters(HttpServletRequest request) {
+        User user = jwtService.extractUser(request);
+        List<Filament> filamentList = filamentRepository.findAllByCompany(user.getCompany());
+        HashMap<String,Set<String>> filters = new HashMap<>();
+        filters.put("brand",getUniqueBrand(filamentList));
+        filters.put("color",getUniqueColor(filamentList));
+        filters.put("material",getUniqueMaterial(filamentList));
+        return filters;
     }
 
     public List<FilamentDTO> getFilteredFilament(
@@ -229,4 +235,23 @@ public class FilamentService {
         filamentRepository.save(filament);
         return filament;
     }
+    private static Set<String> getUniqueMaterial(List<Filament> filamentList) {
+        return filamentList.stream()
+                .map(f-> f.getMaterial().getMaterial())
+                .collect(Collectors.toSet());
+    }
+
+    private static Set<String> getUniqueColor(List<Filament> filamentList) {
+        return filamentList.stream()
+                .map(f-> f.getColor().getColor())
+                .collect(Collectors.toSet());
+    }
+
+    private static Set<String> getUniqueBrand(List<Filament> filamentList) {
+        return filamentList.stream()
+                .map(f -> f.getBrand().getBrand())
+                .collect(Collectors.toSet());
+    }
+
+
 }

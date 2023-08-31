@@ -6,6 +6,7 @@ import lombok.Builder;
 public record FilamentMaterialDTO(
         String material,
         String hotbed,
-        String hotend
+        String hotend,
+        Long id
 )
 {}

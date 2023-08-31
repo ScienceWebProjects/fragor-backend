@@ -11,6 +11,7 @@ public class FilamentColorDTOMapper implements Function<FilamentColor, FilamentC
     @Override
     public FilamentColorDTO apply(FilamentColor filamentColor) {
         return FilamentColorDTO.builder()
+                .id(filamentColor.getId())
                 .color(filamentColor.getColor())
                 .build();
     }

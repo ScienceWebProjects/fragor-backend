@@ -4,5 +4,6 @@ import lombok.Builder;
 
 @Builder
 public record FilamentColorDTO(
+        Long id,
         String color
 ) {}
