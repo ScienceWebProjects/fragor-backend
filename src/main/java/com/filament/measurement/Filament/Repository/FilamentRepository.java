@@ -32,4 +32,11 @@ public interface FilamentRepository extends JpaRepository<Filament,Long> {
             double quantity
             );
     Optional<Filament> findByUid(Long uid);
+//    @Query("""
+//            SELECT DISTINCT fb.brand
+//            FROM Filament f
+//            JOIN f.brand fb.brand
+//            WHERE f.company =:company
+//            """)
+//    List<Object[]> findAllFiltersByCompany(Company company);
 }

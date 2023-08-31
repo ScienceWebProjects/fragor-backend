@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 @CrossOrigin
 @RestController
@@ -50,6 +52,10 @@ public class FilamentController {
     public ResponseEntity<Void> deleteFilament(@PathVariable Long id,HttpServletRequest request){
         filamentService.deleteFilament(id,request);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("filter/get/all/")
+    public ResponseEntity<HashMap<String, Set<String>>> getFilamentsFilters(HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body( filamentService.getFilamentsFilters(request));
     }
 
     @GetMapping("filter/{color}/{material}/{brand}/{quantity}/")

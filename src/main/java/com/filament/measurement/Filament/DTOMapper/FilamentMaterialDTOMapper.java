@@ -11,6 +11,7 @@ public class FilamentMaterialDTOMapper implements Function<FilamentMaterial, Fil
     @Override
     public FilamentMaterialDTO apply(FilamentMaterial filamentMaterial) {
         return FilamentMaterialDTO.builder()
+                .id(filamentMaterial.getId())
                 .material(filamentMaterial.getMaterial())
                 .hotend(filamentMaterial.getHotend())
                 .hotbed(filamentMaterial.getHotbed())
