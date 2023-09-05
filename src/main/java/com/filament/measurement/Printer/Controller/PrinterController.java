@@ -6,9 +6,13 @@ import com.filament.measurement.Printer.Model.Printer;
 import com.filament.measurement.Printer.Service.PrinterService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin
@@ -23,9 +27,20 @@ public class PrinterController {
 
     @PostMapping("add/")
     @PreAuthorize("hasAuthority('changer:create')")
-    public ResponseEntity<Void> add(@RequestBody PrinterRequest form, HttpServletRequest request){
-        printerService.addPrinter(form,request);
+    public ResponseEntity<Void> add(
+            @RequestParam("image") MultipartFile image,
+            @RequestParam("name") String name,
+            @RequestParam("model") String model,
+            HttpServletRequest request
+    ) throws IOException {
+        printerService.addPrinter(name,model,request,image);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
+    }
+    @GetMapping("image/{name}/")
+    public ResponseEntity<byte[]> getPrinterImage(@PathVariable String name) throws IOException {
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.valueOf("image/png"))
+                .body(printerService.getPrinterImage(name));
     }
     @GetMapping("get/all/")
     public ResponseEntity<List<PrinterDTO>> getAll(HttpServletRequest request){
