@@ -11,6 +11,7 @@ public record PrinterDTO (
         String name,
         double workHours,
         String model,
+        String image,
         List<PrinterFilamentsDTO> filaments
 )
 {}

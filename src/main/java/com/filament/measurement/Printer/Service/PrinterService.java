@@ -4,23 +4,27 @@ import com.filament.measurement.Authentication.Service.JwtService;
 import com.filament.measurement.Exception.CustomValidationException;
 import com.filament.measurement.Printer.DTO.PrinterDTO;
 import com.filament.measurement.Printer.DTOMapper.PrinterDTOMapper;
-import com.filament.measurement.Printer.DTOMapper.PrinterModelDTOMapper;
-import com.filament.measurement.Printer.Request.PrinterRequest;
 import com.filament.measurement.Authentication.Model.Company;
 import com.filament.measurement.Printer.Model.Printer;
 import com.filament.measurement.Printer.Model.PrinterModel;
 import com.filament.measurement.Printer.Repository.PrinterModelRepository;
 import com.filament.measurement.Printer.Repository.PrinterRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class PrinterService {
+    @Value("${printer.imagePath}")
+    private String printerImagePath;
     private final JwtService jwtService;
     private final PrinterRepository printerRepository;
     private final PrinterModelRepository printerModelRepository;
@@ -36,21 +40,35 @@ public class PrinterService {
         this.printerDTOMapper = printerDTOMapper;
     }
 
-    public PrinterDTO addPrinter(PrinterRequest form, HttpServletRequest request) {
+    public void addPrinter(String name, String model, HttpServletRequest request, MultipartFile image) throws IOException {
         Company company = jwtService.extractUser(request).getCompany();
-        validatePrinterName(company, form.getName());
-        PrinterModel printerModel = getPrinterModel(company,form.getModel());
-        Printer printer = savePrinterIntoDB(printerModel,form.getName(),company);
-        return printerDTOMapper.apply(printer);
+        validatePrinterName(company, name);
+        PrinterModel printerModel = getPrinterModel(company,model);
+        String imagePath = saveImage(image);
+        Printer printer = savePrinterIntoDB(printerModel,name,company,imagePath);
+        printerDTOMapper.apply(printer);
     }
 
-    private Printer savePrinterIntoDB(PrinterModel printerModel, String name, Company company) {
+    private String saveImage(MultipartFile image) throws IOException {
+        if(image.isEmpty()) return "defaultPrinter";
+        else if(!Objects.requireNonNull(image.getContentType()).startsWith("image/"))
+            throw new CustomValidationException("Invalid file extension");
+        String name = LocalDateTime.now().toString();
+        image.transferTo(new File(printerImagePath+name));
+        return name;
+    }
+    public byte[] getPrinterImage(String name) throws IOException {
+        return Files.readAllBytes(new File(printerImagePath+name).toPath());
+    }
+
+    private Printer savePrinterIntoDB(PrinterModel printerModel, String name, Company company, String imagePath) {
         Printer printer = Printer.builder()
                 .name(name)
                 .company(company)
                 .workHours(0.0)
                 .printerModel(printerModel)
                 .filaments(Collections.emptyList())
+                .image(imagePath)
                 .build();
         printerRepository.save(printer);
         return printer;
@@ -78,6 +96,8 @@ public class PrinterService {
         return printer.get();
     }
     private void validatePrinterName(Company company,String name){
+        if(name == null || name.equals(""))
+            throw new CustomValidationException("Printer's name can't be null.");
         if(printerRepository.nameExists(company,name))
             throw new CustomValidationException("Printer with this name already exists.");
     }
@@ -87,4 +107,6 @@ public class PrinterService {
             throw new CustomValidationException("Model doesn't exists.");
         return printerModel.get();
     }
+
+
 }
