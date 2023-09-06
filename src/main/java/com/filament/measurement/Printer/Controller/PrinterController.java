@@ -5,6 +5,7 @@ import com.filament.measurement.Printer.Request.PrinterRequest;
 import com.filament.measurement.Printer.Model.Printer;
 import com.filament.measurement.Printer.Service.PrinterService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +28,17 @@ public class PrinterController {
 
     @PostMapping("add/")
     @PreAuthorize("hasAuthority('changer:create')")
-    public ResponseEntity<Void> add(
-            @RequestParam("image") MultipartFile image,
-            @RequestParam("name") String name,
-            @RequestParam("model") String model,
+    public ResponseEntity<Void> addPrinter(
+            @Valid @RequestBody PrinterRequest form,
             HttpServletRequest request
     ) throws IOException {
-        printerService.addPrinter(name,model,request,image);
+        printerService.addPrinter(request,form);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
+    }
+    @PatchMapping("image/{id}/")
+    public ResponseEntity<Void> updatePrinterImage(@PathVariable Long id, MultipartFile image,HttpServletRequest request) throws IOException {
+        printerService.updatePrinterImage(id,image,request);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
     @GetMapping("image/{name}/")
     public ResponseEntity<byte[]> getPrinterImage(@PathVariable String name) throws IOException {
