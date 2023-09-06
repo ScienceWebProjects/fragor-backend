@@ -9,6 +9,7 @@ import com.filament.measurement.Printer.Model.Printer;
 import com.filament.measurement.Printer.Model.PrinterModel;
 import com.filament.measurement.Printer.Repository.PrinterModelRepository;
 import com.filament.measurement.Printer.Repository.PrinterRepository;
+import com.filament.measurement.Printer.Request.PrinterRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -40,15 +41,19 @@ public class PrinterService {
         this.printerDTOMapper = printerDTOMapper;
     }
 
-    public void addPrinter(String name, String model, HttpServletRequest request, MultipartFile image) throws IOException {
+    public void addPrinter(HttpServletRequest request, PrinterRequest form){
         Company company = jwtService.extractUser(request).getCompany();
-        validatePrinterName(company, name);
-        PrinterModel printerModel = getPrinterModel(company,model);
-        String imagePath = saveImage(image);
-        Printer printer = savePrinterIntoDB(printerModel,name,company,imagePath);
+        validatePrinterName(company, form.getName());
+        PrinterModel printerModel = getPrinterModel(company, form.getModel());
+        Printer printer = savePrinterIntoDB(printerModel,form.getName(),company);
         printerDTOMapper.apply(printer);
     }
-
+    public void updatePrinterImage(Long id, MultipartFile image, HttpServletRequest request) throws IOException {
+        Printer printer = getPrinter(request,id);
+        String imagePath = saveImage(image);
+        printer.setImage(imagePath);
+        printerRepository.save(printer);
+    }
     private String saveImage(MultipartFile image) throws IOException {
         if(image.isEmpty()) return "defaultPrinter";
         else if(!Objects.requireNonNull(image.getContentType()).startsWith("image/"))
@@ -61,14 +66,14 @@ public class PrinterService {
         return Files.readAllBytes(new File(printerImagePath+name).toPath());
     }
 
-    private Printer savePrinterIntoDB(PrinterModel printerModel, String name, Company company, String imagePath) {
+    private Printer savePrinterIntoDB(PrinterModel printerModel, String name, Company company) {
         Printer printer = Printer.builder()
                 .name(name)
                 .company(company)
                 .workHours(0.0)
                 .printerModel(printerModel)
                 .filaments(Collections.emptyList())
-                .image(imagePath)
+                .image("defaultPrinter")
                 .build();
         printerRepository.save(printer);
         return printer;
@@ -107,6 +112,7 @@ public class PrinterService {
             throw new CustomValidationException("Model doesn't exists.");
         return printerModel.get();
     }
+
 
 
 }
