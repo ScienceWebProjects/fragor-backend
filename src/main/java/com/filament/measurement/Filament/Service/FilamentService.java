@@ -61,7 +61,7 @@ public class FilamentService {
         User user = jwtService.extractUser(request);
         FilamentColor filamentColor = getFilamentColor(form.getColor(),user);
         FilamentMaterial filamentMaterial = getFilamentMaterial(form.getMaterial());
-        FilamentBrand filamentBrand = getFilamentBrand(form.getBrand());
+        FilamentBrand filamentBrand = getFilamentBrand(form.getBrand(),user);
         Filament filament = saveFilamentIntoTheDB(user.getCompany(), form, filamentColor, filamentMaterial,filamentBrand);
         return filamentDTOMapper.apply(filament);
     }
@@ -90,6 +90,14 @@ public class FilamentService {
             FilamentMaterial filamentMaterial = getFilamentMaterial(form.getMaterial());
             filament.setMaterial(filamentMaterial);
         }
+        if(!filament.getBrand().getBrand().equals(form.getBrand())){
+            FilamentBrand filamentBrand = getFilamentBrand(form.getBrand(),user);
+            filament.setBrand(filamentBrand);
+        }
+        if(filament.getDiameter() != form.getDiameter()){
+            filament.setDiameter(form.getDiameter());
+        }
+
         filamentRepository.save(filament);
         return filamentDTOMapper.apply(filament);
     }
@@ -118,6 +126,7 @@ public class FilamentService {
                             .material(filamentMaterials.get(random.nextInt(filamentMaterials.size())))
                             .company(user.getCompany())
                             .brand(filamentBrands.get(random.nextInt(filamentBrands.size())))
+                            .diameter(1.75)
                             .build()
             );
         }
@@ -147,7 +156,7 @@ public class FilamentService {
 
         if(!color.equals("all")) filamentColor = getFilamentColor(color,user);
         if(!material.equals("all")) filamentMaterial = getFilamentMaterial(material);
-        if(!brand.equals("all")) filamentBrand = getFilamentBrand(brand);
+        if(!brand.equals("all")) filamentBrand = getFilamentBrand(brand,user);
 
         return filamentRepository.findByColorAndMaterialAndCompanyAndBrandAndQuantityLessThan(
                         filamentColor,
@@ -211,8 +220,8 @@ public class FilamentService {
         if(filamentMaterial.isEmpty()) throw new NotFound404Exception("Filament's material doesn't found.");
         return filamentMaterial.get();
     }
-    private FilamentBrand getFilamentBrand(String brand) {
-        Optional<FilamentBrand> filamentBrand = filamentBrandRepository.findByBrand(brand);
+    private FilamentBrand getFilamentBrand(String brand,User user) {
+        Optional<FilamentBrand> filamentBrand = filamentBrandRepository.findByCompanyAndBrand(user.getCompany(),brand);
         if(filamentBrand.isEmpty()) throw new NotFound404Exception("Filament's brand doesn't found.");
         return filamentBrand.get();
     }
@@ -231,6 +240,7 @@ public class FilamentService {
                 .quantity(form.getQuantity())
                 .material(filamentMaterial)
                 .brand(filamentBrand)
+                .diameter(form.getDiameter())
                 .build();
         filamentRepository.save(filament);
         return filament;

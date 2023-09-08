@@ -5,6 +5,7 @@ import com.filament.measurement.Filament.Request.FilamentBrandRequest;
 import com.filament.measurement.Filament.Service.FilamentBrandService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,9 +39,14 @@ public class FilamentBrandController {
     }
     @DeleteMapping("delete/{id}/")
     @PreAuthorize("hasAuthority('changer:delete')")
-    public ResponseEntity<Void> deleteBrand(@PathVariable Long id, HttpServletRequest request){
-        filamentBrandService.deleteBrand(id,request);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    public ResponseEntity<String> deleteBrand(@PathVariable Long id, HttpServletRequest request){
+        try {
+            filamentBrandService.deleteBrand(id, request);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        }catch (DataIntegrityViolationException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("This brand is connected to added filament.");
+
+        }
     }
 
 }

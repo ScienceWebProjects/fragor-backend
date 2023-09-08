@@ -40,6 +40,15 @@ public class PrinterController {
         printerService.updatePrinterImage(id,image,request);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
+    @PatchMapping("update/{id}/")
+    public ResponseEntity<Void> updatePrinterNameModel(
+            @PathVariable Long id,
+            @Valid @RequestBody PrinterRequest form,
+            HttpServletRequest request
+    ){
+        printerService.updateNameModel(id,form,request);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
     @GetMapping("image/{name}/")
     public ResponseEntity<byte[]> getPrinterImage(@PathVariable String name) throws IOException {
         return ResponseEntity.status(HttpStatus.OK)
