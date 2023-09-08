@@ -2,6 +2,7 @@ package com.filament.measurement.Filament.Request;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -21,4 +22,8 @@ public class FilamentRequest {
 
     @NotNull
     private String brand;
+
+    @DecimalMin(value = "1.0")
+    @DecimalMax(value = "5.0")
+    private double diameter;
 }

@@ -50,7 +50,6 @@ public class FilamentMaterialService {
                 .material(form.getMaterial())
                 .hotbed(form.getHotbed())
                 .density(form.getDensity())
-                .diameter(form.getDiameter())
                 .hotend(form.getHotend())
                 .build();
         filamentMaterialRepository.save(filamentMaterial);

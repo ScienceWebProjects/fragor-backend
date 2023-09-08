@@ -33,7 +33,8 @@ public class SecurityConfig {
                     .requestMatchers(
                             "/api/account/registration/",
                             "/api/account/login/password/",
-                            "/api/account/login/pin/"
+                            "/api/account/login/pin/",
+                            "/api/printer/image/**"
                     )
                     .permitAll()
                     .anyRequest()

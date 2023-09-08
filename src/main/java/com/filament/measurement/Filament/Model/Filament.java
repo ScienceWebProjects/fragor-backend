@@ -19,6 +19,8 @@ public class Filament {
 
     private Long uid;
 
+    private double diameter;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private Company company;
 

@@ -19,4 +19,5 @@ public interface FilamentBrandRepository extends JpaRepository<FilamentBrand,Lon
 
     public Optional<FilamentBrand> findByCompanyAndId(Company company,Long id);
     public Optional<FilamentBrand> findByBrand(String brand);
+    public Optional<FilamentBrand> findByCompanyAndBrand(Company company,String brand);
 }

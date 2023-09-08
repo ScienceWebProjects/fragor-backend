@@ -54,29 +54,18 @@ public class PrinterService {
         printer.setImage(imagePath);
         printerRepository.save(printer);
     }
-    private String saveImage(MultipartFile image) throws IOException {
-        if(image.isEmpty()) return "defaultPrinter";
-        else if(!Objects.requireNonNull(image.getContentType()).startsWith("image/"))
-            throw new CustomValidationException("Invalid file extension");
-        String name = LocalDateTime.now().toString();
-        image.transferTo(new File(printerImagePath+name));
-        return name;
-    }
-    public byte[] getPrinterImage(String name) throws IOException {
-        return Files.readAllBytes(new File(printerImagePath+name).toPath());
+    public void updateNameModel(Long id, PrinterRequest form, HttpServletRequest request) {
+        Company company = jwtService.extractUser(request).getCompany();
+        Printer printer = getPrinter(request,id);
+        validatePrinterName(company, form.getName());
+        PrinterModel printerModel = getPrinterModel(company, form.getModel());
+        printer.setName(form.getName());
+        printer.setPrinterModel(printerModel);
+        printerRepository.save(printer);
     }
 
-    private Printer savePrinterIntoDB(PrinterModel printerModel, String name, Company company) {
-        Printer printer = Printer.builder()
-                .name(name)
-                .company(company)
-                .workHours(0.0)
-                .printerModel(printerModel)
-                .filaments(Collections.emptyList())
-                .image("defaultPrinter")
-                .build();
-        printerRepository.save(printer);
-        return printer;
+    public byte[] getPrinterImage(String name) throws IOException {
+        return Files.readAllBytes(new File(printerImagePath+name).toPath());
     }
 
     public List<PrinterDTO> getAll(HttpServletRequest request) {
@@ -112,7 +101,24 @@ public class PrinterService {
             throw new CustomValidationException("Model doesn't exists.");
         return printerModel.get();
     }
-
-
-
+    private String saveImage(MultipartFile image) throws IOException {
+        if(image.isEmpty()) return "defaultPrinter";
+        else if(!Objects.requireNonNull(image.getContentType()).startsWith("image/"))
+            throw new CustomValidationException("Invalid file extension");
+        String name = LocalDateTime.now().toString();
+        image.transferTo(new File(printerImagePath+name));
+        return name;
+    }
+    private Printer savePrinterIntoDB(PrinterModel printerModel, String name, Company company) {
+        Printer printer = Printer.builder()
+                .name(name)
+                .company(company)
+                .workHours(0.0)
+                .printerModel(printerModel)
+                .filaments(Collections.emptyList())
+                .image("defaultPrinter")
+                .build();
+        printerRepository.save(printer);
+        return printer;
+    }
 }

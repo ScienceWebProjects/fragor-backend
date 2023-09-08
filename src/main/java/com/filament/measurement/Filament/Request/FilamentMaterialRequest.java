@@ -21,5 +21,4 @@ public class FilamentMaterialRequest {
     @DecimalMin(value = "1.0")
     @DecimalMax(value = "10.0")
     private double density;
-    private double diameter = 1.75;
 }

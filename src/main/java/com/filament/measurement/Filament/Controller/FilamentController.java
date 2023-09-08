@@ -5,6 +5,7 @@ import com.filament.measurement.Filament.Request.FilamentRequest;
 import com.filament.measurement.Filament.Request.FilamentSubtractionRequest;
 import com.filament.measurement.Filament.Service.FilamentService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +28,7 @@ public class FilamentController {
 
     @PostMapping("add/")
     @PreAuthorize("hasAuthority('changer:create')")
-    public ResponseEntity<FilamentDTO> addFilament(@RequestBody FilamentRequest form, HttpServletRequest request){
+    public ResponseEntity<FilamentDTO> addFilament(@Valid @RequestBody FilamentRequest form, HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(filamentService.addFilament(form,request));
     }
     @GetMapping("get/all/")
@@ -44,7 +45,7 @@ public class FilamentController {
     public ResponseEntity<FilamentDTO> updateFilament(
             @PathVariable Long id,
             HttpServletRequest request,
-            @RequestBody FilamentRequest form){
+            @Valid @RequestBody FilamentRequest form){
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.updateFilament(id,request,form));
     }
     @DeleteMapping("delete/{id}/")
