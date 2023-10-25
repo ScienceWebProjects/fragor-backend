@@ -1,68 +1,88 @@
 package com.filament.measurement.Filament.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.filament.measurement.Authentication.Model.Company;
 import com.filament.measurement.Authentication.Model.User;
 import com.filament.measurement.Authentication.Service.JwtService;
-import com.filament.measurement.Device.Model.Device;
-import com.filament.measurement.Device.Repository.DeviceRepository;
+import com.filament.measurement.Device.Model.AddingDevice;
+import com.filament.measurement.Device.Model.MeasuringDevice;
+import com.filament.measurement.Device.Repository.AddingDeviceRepository;
+import com.filament.measurement.Device.Repository.MeasuringDeviceRepository;
+import com.filament.measurement.Exception.CustomValidationException;
 import com.filament.measurement.Exception.NotFound404Exception;
 import com.filament.measurement.Filament.DTO.FilamentDTO;
 import com.filament.measurement.Filament.DTOMapper.FilamentDTOMapper;
-import com.filament.measurement.Filament.Model.Filament;
-import com.filament.measurement.Filament.Model.FilamentBrand;
-import com.filament.measurement.Filament.Model.FilamentColor;
-import com.filament.measurement.Filament.Model.FilamentMaterial;
-import com.filament.measurement.Filament.Repository.FilamentBrandRepository;
-import com.filament.measurement.Filament.Repository.FilamentColorRepository;
-import com.filament.measurement.Filament.Repository.FilamentMaterialRepository;
-import com.filament.measurement.Filament.Repository.FilamentRepository;
+import com.filament.measurement.Filament.Model.*;
+import com.filament.measurement.Filament.Repository.*;
+import com.filament.measurement.Filament.Request.FilamentNotesRequest;
 import com.filament.measurement.Filament.Request.FilamentRequest;
 import com.filament.measurement.Filament.Request.FilamentSubtractionRequest;
 import com.filament.measurement.Printer.Model.Printer;
 import com.filament.measurement.Printer.Model.PrinterFilaments;
 import com.filament.measurement.Printer.Repository.PrinterFilamentsRepository;
+import com.filament.measurement.UDP.UDP;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class FilamentService {
+    @Value("${client.url}")
+    private String clientUrl;
+    private final UDP udp;
     private final JwtService jwtService;
-    private final DeviceRepository deviceRepository;
+    private final MeasuringDeviceRepository measuringDeviceRepository;
     private final FilamentDTOMapper filamentDTOMapper;
     private final FilamentRepository filamentRepository;
     private final FilamentColorRepository filamentColorRepository;
     private final FilamentBrandRepository filamentBrandRepository;
     private final FilamentMaterialRepository filamentMaterialRepository;
     private final PrinterFilamentsRepository printerFilamentsRepository;
+    private final AddingDeviceRepository addingDeviceRepository;
+    private final FilamentNoteRepository filamentNoteRepository;
 
     public FilamentService(
+            UDP udp,
             JwtService jwtService,
-            DeviceRepository deviceRepository,
+            MeasuringDeviceRepository measuringDeviceRepository,
             FilamentDTOMapper filamentDTOMapper,
             FilamentRepository filamentRepository,
             FilamentColorRepository filamentColorRepository,
             FilamentBrandRepository filamentBrandRepository,
             FilamentMaterialRepository filamentMaterialRepository,
-            PrinterFilamentsRepository printerFilamentsRepository
-    ) {
+            PrinterFilamentsRepository printerFilamentsRepository,
+            AddingDeviceRepository addingDeviceRepository, FilamentNoteRepository filamentNoteRepository) {
+        this.udp = udp;
         this.jwtService = jwtService;
-        this.deviceRepository = deviceRepository;
+        this.measuringDeviceRepository = measuringDeviceRepository;
         this.filamentDTOMapper = filamentDTOMapper;
         this.filamentRepository = filamentRepository;
         this.filamentColorRepository = filamentColorRepository;
         this.filamentBrandRepository = filamentBrandRepository;
         this.filamentMaterialRepository = filamentMaterialRepository;
         this.printerFilamentsRepository = printerFilamentsRepository;
+        this.addingDeviceRepository = addingDeviceRepository;
+        this.filamentNoteRepository = filamentNoteRepository;
     }
-    public FilamentDTO addFilament(FilamentRequest form, HttpServletRequest request) {
+    public FilamentDTO addFilament(FilamentRequest form, HttpServletRequest request) throws IOException, InterruptedException {
         User user = jwtService.extractUser(request);
+//        Long uid = getFilamentUidRandom();
         FilamentColor filamentColor = getFilamentColor(form.getColor(),user);
         FilamentMaterial filamentMaterial = getFilamentMaterial(form.getMaterial());
         FilamentBrand filamentBrand = getFilamentBrand(form.getBrand(),user);
-        Filament filament = saveFilamentIntoTheDB(user.getCompany(), form, filamentColor, filamentMaterial,filamentBrand);
+        Long uid = getFilamentUid(form.getDevice(),user.getCompany());
+
+        if(filamentRepository.findByUidAndCompany(uid,user.getCompany()).isPresent())
+            throw new CustomValidationException("Filament already exists.");
+        Filament filament = saveFilamentIntoTheDB(user.getCompany(), form, filamentColor, filamentMaterial,filamentBrand,uid);
         return filamentDTOMapper.apply(filament);
     }
 
@@ -73,14 +93,14 @@ public class FilamentService {
                 .map(filamentDTOMapper)
                 .collect(Collectors.toList());
     }
+
     public FilamentDTO getFilament(Long id, HttpServletRequest request) {
-        User user = jwtService.extractUser(request);
-        return filamentDTOMapper.apply(getFilamentFromDB(user,id));
+        return filamentDTOMapper.apply(getFilamentFromDB(request,id));
     }
 
     public FilamentDTO updateFilament(Long id, HttpServletRequest request, FilamentRequest form) {
         User user = jwtService.extractUser(request);
-        Filament filament = getFilamentFromDB(user,id);
+        Filament filament = getFilamentFromDB(request,id);
 
         if(!filament.getColor().getColor().equals(form.getColor())){
             FilamentColor filamentColor = getFilamentColor(form.getColor(), user);
@@ -102,9 +122,15 @@ public class FilamentService {
         return filamentDTOMapper.apply(filament);
     }
 
+    public Object findFilament(HttpServletRequest request, Long deviceId) throws IOException, InterruptedException {
+        Company company = jwtService.extractUser(request).getCompany();
+        long uid = getFilamentUid(deviceId,company);
+        Filament filament = getFilamentByUid(uid,company);
+        return filamentDTOMapper.apply(filament);
+    }
+
     public void deleteFilament(Long id, HttpServletRequest request) {
-        User user = jwtService.extractUser(request);
-        Filament filament = getFilamentFromDB(user,id);
+        Filament filament = getFilamentFromDB(request,id);
         filamentRepository.delete(filament);
     }
 
@@ -170,13 +196,13 @@ public class FilamentService {
     }
 
     public void subtraction(FilamentSubtractionRequest form, HttpServletRequest request) {
-
-        Optional<Device> deviceOptional = deviceRepository.findByIp(form.getIp());
+        Company company = jwtService.extractUser(request).getCompany();
+        Optional<MeasuringDevice> deviceOptional = measuringDeviceRepository.findByIp(form.getIp());
         if (deviceOptional.isEmpty()) return;
-        Device device = deviceOptional.get();
-        Printer printer = device.getPrinter();
+        MeasuringDevice measuringDevice = deviceOptional.get();
+        Printer printer = measuringDevice.getPrinter();
 
-        Optional<Filament> filamentOptional = filamentRepository.findByUid(form.getUid());
+        Optional<Filament> filamentOptional = filamentRepository.findByUidAndCompany(form.getUid(),company);
         if(filamentOptional.isEmpty()) return;
         Filament filament = filamentOptional.get();
 
@@ -201,8 +227,16 @@ public class FilamentService {
         printerFilamentsRepository.save(printerFilaments);
     }
 
-    private Filament getFilamentFromDB(User user,Long id) {
-        Optional<Filament> filament = filamentRepository.findByIdAndCompany(id, user.getCompany());
+    private Filament getFilamentByUid(long uid, Company company) {
+        Optional<Filament> filamentOptional = filamentRepository.findByUidAndCompany(uid,company);
+        if(filamentOptional.isEmpty())
+            throw new NotFound404Exception("Filament doesn't found");
+        return filamentOptional.get();
+    }
+
+    private Filament getFilamentFromDB(HttpServletRequest request,Long id) {
+        Company company = jwtService.extractUser(request).getCompany();
+        Optional<Filament> filament = filamentRepository.findByIdAndCompany(id, company);
         if (filament.isEmpty()) throw new NotFound404Exception("Filament doesn't found.");
         return filament.get();
     }
@@ -220,6 +254,7 @@ public class FilamentService {
         if(filamentMaterial.isEmpty()) throw new NotFound404Exception("Filament's material doesn't found.");
         return filamentMaterial.get();
     }
+
     private FilamentBrand getFilamentBrand(String brand,User user) {
         Optional<FilamentBrand> filamentBrand = filamentBrandRepository.findByCompanyAndBrand(user.getCompany(),brand);
         if(filamentBrand.isEmpty()) throw new NotFound404Exception("Filament's brand doesn't found.");
@@ -231,10 +266,11 @@ public class FilamentService {
             FilamentRequest form,
             FilamentColor filamentColor,
             FilamentMaterial filamentMaterial,
-            FilamentBrand filamentBrand
+            FilamentBrand filamentBrand,
+            Long uid
     ) {
         Filament filament = Filament.builder()
-                .uid(form.getUid())
+                .uid(uid)
                 .color(filamentColor)
                 .company(company)
                 .quantity(form.getQuantity())
@@ -245,6 +281,7 @@ public class FilamentService {
         filamentRepository.save(filament);
         return filament;
     }
+
     private static Set<String> getUniqueMaterial(List<Filament> filamentList) {
         return filamentList.stream()
                 .map(f-> f.getMaterial().getMaterial())
@@ -261,6 +298,81 @@ public class FilamentService {
         return filamentList.stream()
                 .map(f -> f.getBrand().getBrand())
                 .collect(Collectors.toSet());
+    }
+    private Long getFilamentUid(long deviceId, Company company) throws InterruptedException, IOException {
+        AddingDevice addingDevice = getAddingDevice(deviceId,company);
+
+        HashMap<String,Object> data = new HashMap<>();
+        data.put("port",addingDevice.getPort());
+        data.put("ip",addingDevice.getIp().toString().substring(1));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonData = objectMapper.writeValueAsString(data);
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest postRequest = HttpRequest.newBuilder()
+                .uri(URI.create(clientUrl+"filaments/add/"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonData))
+                .build();
+        HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
+        System.out.println(postResponse.uri());
+        if (postResponse.statusCode() == 504)
+            throw new IOException();
+        return Long.parseLong(postResponse.body());
+    }
+
+    private AddingDevice getAddingDevice(long deviceId, Company company) {
+        Optional<AddingDevice> addingDeviceOptional = addingDeviceRepository.findByIdAndCompany(deviceId,company);
+        if (addingDeviceOptional.isEmpty())
+            throw new NotFound404Exception("Adding device doesn't found.");
+        return addingDeviceOptional.get();
+    }
+
+    private Long getFilamentUidRandom() {
+        Random random = new Random();
+        return random.nextLong(10000000,99999999);
+
+    }
+
+    public List<FilamentNotes> getAllFilamentNotes(Long filament_id, HttpServletRequest request) {
+        Filament filament = getFilamentFromDB(request, filament_id);
+        return filament.getNotes();
+    }
+
+    public void addOrUpdateFilamentNote(Long filament_id, HttpServletRequest request, FilamentNotesRequest form) {
+        Filament filament = getFilamentFromDB(request, filament_id);
+        if(form.getNoteID() == null)
+            addNewNote(filament,form.getNote());
+        else{
+            updateNotes(filament_id,form,request);
+        }
+    }
+    public void deleteFilamentNote(Long filament_id, Long note_id, HttpServletRequest request) {
+        FilamentNotes filamentNote = getFilamentNote(filament_id, note_id, request);
+        filamentNoteRepository.delete(filamentNote);
+    }
+
+    private void updateNotes(Long filament_id, FilamentNotesRequest form, HttpServletRequest request) {
+        FilamentNotes filamentNote = getFilamentNote(filament_id, form.getNoteID(), request);
+        filamentNote.setNote(form.getNote());
+        filamentNoteRepository.save(filamentNote);
+    }
+
+    private FilamentNotes getFilamentNote(Long filament_id, Long note_id, HttpServletRequest request) {
+        Filament filament = getFilamentFromDB(request, filament_id);
+        Optional<FilamentNotes> filamentNotesOptional = filamentNoteRepository.findByFilamentAndId(filament, note_id);
+        if(filamentNotesOptional.isEmpty())
+            throw new CustomValidationException("Filament's note not found.");
+        return filamentNotesOptional.get();
+    }
+
+    private void addNewNote(Filament filament, String note) {
+        FilamentNotes filamentNotes = FilamentNotes.builder()
+                .filament(filament)
+                .note(note)
+                .build();
+        filamentNoteRepository.save(filamentNotes);
     }
 
 

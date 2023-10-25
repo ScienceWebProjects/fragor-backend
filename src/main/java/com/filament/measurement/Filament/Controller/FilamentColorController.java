@@ -2,11 +2,9 @@ package com.filament.measurement.Filament.Controller;
 
 import com.filament.measurement.Filament.DTO.FilamentColorDTO;
 import com.filament.measurement.Filament.Request.FilamentColorRequest;
-import com.filament.measurement.Filament.Model.FilamentColor;
 import com.filament.measurement.Filament.Service.FilamentColorService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +15,7 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @RequestMapping("api/filaments/color/")
+@SuppressWarnings("unused")
 public class FilamentColorController {
     private final FilamentColorService filamentColorService;
 

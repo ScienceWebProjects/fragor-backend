@@ -1,7 +1,6 @@
-package com.filament.measurement.Device.Model;
+package com.filament.measurement.Filament.Model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.filament.measurement.Authentication.Model.Company;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.filament.measurement.Printer.Model.Printer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,21 +8,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.net.InetAddress;
-
 @Entity
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
-public class Device {
+public class FilamentNotes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String note;
     @ManyToOne(fetch = FetchType.EAGER)
-    private Company company;
-    @OneToOne(cascade = CascadeType.ALL)
-    private Printer printer;
-    private InetAddress ip;
-    private int port;
+    @JoinColumn(
+            name = "filament_id"
+    )
+
+    @JsonBackReference
+    private Filament filament;
 }

@@ -34,7 +34,8 @@ public class SecurityConfig {
                             "/api/account/registration/",
                             "/api/account/login/password/",
                             "/api/account/login/pin/",
-                            "/api/printer/image/**"
+                            "/api/printer/image/**",
+                            "api/filaments/subtraction/"
                     )
                     .permitAll()
                     .anyRequest()

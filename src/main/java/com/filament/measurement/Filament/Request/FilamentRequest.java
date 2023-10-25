@@ -12,8 +12,6 @@ public class FilamentRequest {
     @DecimalMax(value = "5000.0")
     private double quantity = 1000;
 
-    private Long uid;
-
     @NotNull
     private String color;
 
@@ -26,4 +24,6 @@ public class FilamentRequest {
     @DecimalMin(value = "1.0")
     @DecimalMax(value = "5.0")
     private double diameter;
+    @NotNull
+    private long device;
 }

@@ -1,9 +1,11 @@
 package com.filament.measurement.Filament.Model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.filament.measurement.Authentication.Model.Company;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Data
@@ -32,4 +34,8 @@ public class Filament {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private FilamentBrand brand;
+
+    @OneToMany(mappedBy = "filament",cascade = CascadeType.REFRESH)
+    @JsonManagedReference
+    private List<FilamentNotes> notes;
 }

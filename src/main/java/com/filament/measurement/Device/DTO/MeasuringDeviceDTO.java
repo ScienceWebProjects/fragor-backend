@@ -4,7 +4,7 @@ import com.filament.measurement.Printer.Model.Printer;
 import lombok.Builder;
 
 @Builder
-public record DeviceDTO(
+public record MeasuringDeviceDTO(
     Long id,
     Printer printer
 ) {

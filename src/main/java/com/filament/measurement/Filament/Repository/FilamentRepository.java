@@ -14,7 +14,6 @@ import java.util.Optional;
 @Repository
 public interface FilamentRepository extends JpaRepository<Filament,Long> {
     List<Filament> findAllByCompany(Company company);
-
     Optional<Filament> findByIdAndCompany(Long id,Company company);
     @Query("""
             SELECT f FROM Filament f WHERE (:color IS NULL OR f.color =:color)
@@ -31,7 +30,7 @@ public interface FilamentRepository extends JpaRepository<Filament,Long> {
             Company company,
             double quantity
             );
-    Optional<Filament> findByUid(Long uid);
+    Optional<Filament> findByUidAndCompany(Long uid,Company company);
 //    @Query("""
 //            SELECT DISTINCT fb.brand
 //            FROM Filament f

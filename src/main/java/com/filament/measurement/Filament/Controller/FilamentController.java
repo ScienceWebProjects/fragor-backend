@@ -1,6 +1,8 @@
 package com.filament.measurement.Filament.Controller;
 
 import com.filament.measurement.Filament.DTO.FilamentDTO;
+import com.filament.measurement.Filament.Model.FilamentNotes;
+import com.filament.measurement.Filament.Request.FilamentNotesRequest;
 import com.filament.measurement.Filament.Request.FilamentRequest;
 import com.filament.measurement.Filament.Request.FilamentSubtractionRequest;
 import com.filament.measurement.Filament.Service.FilamentService;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -18,19 +21,35 @@ import java.util.Set;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/filaments/")
+@SuppressWarnings("unused")
 public class FilamentController {
     private final FilamentService filamentService;
-
     public FilamentController(FilamentService filamentService) {
         this.filamentService = filamentService;
     }
 
-
     @PostMapping("add/")
     @PreAuthorize("hasAuthority('changer:create')")
-    public ResponseEntity<FilamentDTO> addFilament(@Valid @RequestBody FilamentRequest form, HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(filamentService.addFilament(form,request));
+    public ResponseEntity<?> addFilament(@Valid @RequestBody FilamentRequest form, HttpServletRequest request) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(filamentService.addFilament(form, request));
+        }catch (IOException e){
+            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout");
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
+    @GetMapping("find/{deviceId}/")
+    public ResponseEntity<?> findFilamentByUid(@PathVariable Long deviceId,HttpServletRequest request) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(filamentService.findFilament(request, deviceId));
+        }catch (IOException e){
+            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout");
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @GetMapping("get/all/")
     public ResponseEntity<List<FilamentDTO>> getAllFilaments(HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(filamentService.getAllFilaments(request));
@@ -79,17 +98,42 @@ public class FilamentController {
 
     }
     @PutMapping("subtraction/")
-    @PreAuthorize("hasAuthority('device:update')")
+    @PreAuthorize("hasRole('DEVICE')")
     public ResponseEntity<Void> subtraction(@RequestBody FilamentSubtractionRequest form, HttpServletRequest request){
         filamentService.subtraction(form,request);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @GetMapping("/add/{amount}/")
-    @PreAuthorize("hasAuthority('master:create')")
+    @PreAuthorize("hasAuthority('owner:create')")
     public ResponseEntity<Void> addRandomFilaments(@PathVariable int amount,HttpServletRequest request){
         filamentService.addRandomFilaments(amount,request);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
+    @GetMapping("notes/get/all/{filament_id}/")
+    public ResponseEntity<List<FilamentNotes>> getAllFilamentNotes (@PathVariable Long filament_id, HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(filamentService.getAllFilamentNotes(filament_id,request));
+    }
+
+    @PostMapping("notes/update/{filament_id}/")
+    @PreAuthorize("hasAuthority('owner:create')")
+    public ResponseEntity<Void> addOrUpdateFilamentNote (
+            @PathVariable Long filament_id,
+            @RequestBody FilamentNotesRequest form,
+            HttpServletRequest request){
+        filamentService.addOrUpdateFilamentNote(filament_id,request,form);
+        return ResponseEntity.status(HttpStatus.CREATED).body(null);
+    }
+
+    @DeleteMapping("{filament_id}/notes/delete/{note_id}/")
+    @PreAuthorize("hasAuthority('owner:delete')")
+    public ResponseEntity<Void> deleteNote(
+            @PathVariable Long filament_id,
+            @PathVariable Long note_id,
+            HttpServletRequest request)
+    {
+        filamentService.deleteFilamentNote(filament_id,note_id,request);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
 }

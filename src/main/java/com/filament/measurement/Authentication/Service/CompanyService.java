@@ -44,27 +44,9 @@ public class CompanyService {
         companyRepository.save(company);
         return company;
     }
-
-    private String createCompanyToken() {
-        String CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&";
-        Random random = new Random();
-        int minLength = 20;
-        int maxLength = 30;
-        int length = random.nextInt(minLength,maxLength);
-
-        StringBuilder tokenBuilder = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            int randomIndex = random.nextInt(CHARACTERS.length());
-            char randomChar = CHARACTERS.charAt(randomIndex);
-            tokenBuilder.append(randomChar);
-        }
-        String token = tokenBuilder.toString();
-        if(companyRepository.tokenExists(token)){
-            token = createCompanyToken();
-        }
-        return token;
+    public void deleteCompany(Long id) {
+        companyRepository.deleteById(id);
     }
-
     public List<CompanyDTO> getAllCompany() {
         return companyRepository.findAll().stream()
                 .map(companyDTOMapper)
@@ -89,4 +71,24 @@ public class CompanyService {
                 .map(userDTOMapper)
                 .collect(Collectors.toList());
     }
+    private String createCompanyToken() {
+        String CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&";
+        Random random = new Random();
+        int minLength = 20;
+        int maxLength = 30;
+        int length = random.nextInt(minLength,maxLength);
+
+        StringBuilder tokenBuilder = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int randomIndex = random.nextInt(CHARACTERS.length());
+            char randomChar = CHARACTERS.charAt(randomIndex);
+            tokenBuilder.append(randomChar);
+        }
+        String token = tokenBuilder.toString();
+        if(companyRepository.tokenExists(token)){
+            token = createCompanyToken();
+        }
+        return token;
+    }
+
 }

@@ -1,5 +1,7 @@
 package com.filament.measurement.UDP;
 
+import com.filament.measurement.Exception.CustomValidationException;
+import com.filament.measurement.Exception.NotFound404Exception;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -23,6 +25,15 @@ public class UDP {
         socket.receive(receivePacket);
         socket.close();
         return receivePacket;
-
+    }
+    public DatagramPacket scanLocalHost(String message,int port,int timeoutInMs,String exceptionMessage) {
+        for (int i = 2; i < 254; i++) {
+            try {
+                return send(message, port, "192.168.0." + i, timeoutInMs);
+            } catch (IOException e) {
+                continue;
+            }
+        }
+        throw new NotFound404Exception(exceptionMessage);
     }
 }

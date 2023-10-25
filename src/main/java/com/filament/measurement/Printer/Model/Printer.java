@@ -1,8 +1,8 @@
 package com.filament.measurement.Printer.Model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.filament.measurement.Authentication.Model.Company;
-import com.filament.measurement.Device.Model.Device;
+import com.filament.measurement.Device.Model.MeasuringDevice;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,5 +36,9 @@ public class Printer {
     private List<PrinterFilaments> filaments;
 
     @OneToOne()
-    private Device device;
+    private MeasuringDevice measuringDevice;
+
+    @OneToMany(mappedBy = "printer",cascade = CascadeType.REFRESH)
+    @JsonManagedReference
+    private List<PrinterNotes> notes;
 }

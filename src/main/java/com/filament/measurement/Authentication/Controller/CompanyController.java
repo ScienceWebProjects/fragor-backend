@@ -17,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/companies/")
 @CrossOrigin
+@SuppressWarnings("unused")
 public class CompanyController {
 
     private final CompanyService companyService;
@@ -27,6 +28,12 @@ public class CompanyController {
     @PostMapping("add/")
     public ResponseEntity<Company> addCompany (@Valid @RequestBody CompanyRequest form){
         return ResponseEntity.status(HttpStatus.CREATED).body(companyService.addCompany(form));
+    }
+    @PreAuthorize("hasRole('OWNER')")
+    @DeleteMapping("delete/{id}/")
+    public ResponseEntity<Void> deleteCompany(@PathVariable Long id){
+        companyService.deleteCompany(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
     @PreAuthorize("hasRole('OWNER')")
     @GetMapping("get/all/")
