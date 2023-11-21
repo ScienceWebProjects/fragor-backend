@@ -16,6 +16,7 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @RequestMapping("api/filaments/brand/")
+@SuppressWarnings("unused")
 public class FilamentBrandController {
     private final FilamentBrandService filamentBrandService;
 

@@ -4,10 +4,8 @@ import com.filament.measurement.Authentication.DTO.AuthenticationTokenDTO;
 import com.filament.measurement.Authentication.DTO.UserPermissionDTO;
 import com.filament.measurement.Authentication.Request.*;
 import com.filament.measurement.Authentication.Service.UserService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/account/")
 @CrossOrigin
-
+@SuppressWarnings("unused")
 public class UserController {
     private final UserService service;
 
@@ -40,7 +38,7 @@ public class UserController {
     }
 
     @DeleteMapping("logout/")
-    public ResponseEntity<Void> logoutUser (HttpServletRequest request) throws ServletException {
+    public ResponseEntity<Void> logoutUser (HttpServletRequest request) {
         service.userLogout(request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
@@ -92,5 +90,7 @@ public class UserController {
         service.changeUserPin(form,request);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
+
+
 
 }

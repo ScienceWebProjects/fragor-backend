@@ -13,6 +13,7 @@ import static com.filament.measurement.Authentication.Permission.Permission.*;
 
 @RequiredArgsConstructor
 public enum Role {
+    DEVICE(Collections.emptySet()),
     COMMON_USER(Collections.emptySet()),
     CHANGER_USER(
             Set.of(

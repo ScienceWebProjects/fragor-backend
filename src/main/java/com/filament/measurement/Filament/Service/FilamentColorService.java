@@ -2,7 +2,6 @@ package com.filament.measurement.Filament.Service;
 
 import com.filament.measurement.Authentication.Model.Company;
 import com.filament.measurement.Authentication.Service.JwtService;
-import com.filament.measurement.Exception.CustomValidationException;
 import com.filament.measurement.Exception.NotFound404Exception;
 import com.filament.measurement.Filament.DTO.FilamentColorDTO;
 import com.filament.measurement.Filament.DTOMapper.FilamentColorDTOMapper;
@@ -11,7 +10,6 @@ import com.filament.measurement.Filament.Model.FilamentColor;
 import com.filament.measurement.Authentication.Model.User;
 import com.filament.measurement.Filament.Repository.FilamentColorRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -48,7 +46,6 @@ public class FilamentColorService {
     )
     {
         User user = jwtService.extractUser(request);
-        filamentColorDoesNotExists(user.getCompany(),form.getColor());
         saveNewFilamentIntoDb(user.getCompany(),form.getColor());
     }
 
@@ -57,11 +54,6 @@ public class FilamentColorService {
         Optional<FilamentColor> filamentColor = filamentColorRepository.findByIdAndCompany(id,user.getCompany());
         if (filamentColor.isEmpty()) throw new NotFound404Exception("Filament color doesn't exists");
         filamentColorRepository.delete(filamentColor.get());
-    }
-
-    private void filamentColorDoesNotExists(Company company, String color){
-        if(filamentColorRepository.colorExists(company, color))
-            throw new CustomValidationException("Color already exists");
     }
 
     private void saveNewFilamentIntoDb(Company company,String color){

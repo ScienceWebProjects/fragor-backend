@@ -1,5 +1,5 @@
 # Pobranie obrazu Javy z JDK
-FROM maven AS builder
+FROM maven:3-eclipse-temurin-20-alpine AS builder
 
 # Utworzenie katalogu roboczego wewnątrz obrazu
 WORKDIR /app

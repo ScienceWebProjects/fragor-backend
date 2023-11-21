@@ -7,6 +7,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,6 +45,9 @@ public class User implements UserDetails {
             name = "company_id"
     )
     private Company company;
+
+    public <E> User(String testuser, String password, ArrayList<E> es) {
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -42,7 +42,6 @@ public class FilamentBrandService {
 
     public void addBrand(FilamentBrandRequest form, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
-        filamentBrandDoesNotExists(form,user.getCompany());
         saveBrandIntoDB(user.getCompany(),form);
     }
 
@@ -53,11 +52,6 @@ public class FilamentBrandService {
                 .company(company)
                 .build()
         );
-    }
-
-    private void filamentBrandDoesNotExists(FilamentBrandRequest form, Company company) {
-        if(filamentBrandRepository.brandExists(company, form.getBrand()))
-            throw new CustomValidationException("Brand already exists.");
     }
 
     public void deleteBrand(Long id, HttpServletRequest request) {

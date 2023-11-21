@@ -11,10 +11,8 @@ import com.filament.measurement.Authentication.Model.User;
 import com.filament.measurement.Printer.Repository.PrinterModelRepository;
 import com.filament.measurement.Printer.Request.PrinterModelRequest;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,28 +33,22 @@ public class PrinterModelService {
         this.printerModelDTOMapper = printerModelDTOMapper;
     }
 
-    public void add(PrinterModelRequest model, HttpServletRequest request) {
+    public void addPrinterModel(PrinterModelRequest model, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
-        modelExists(user.getCompany(),model.getModel());
-        saveModelIntoDB(user.getCompany(),model.getModel());
+        savePrinterModelIntoDB(user.getCompany(),model.getModel());
     }
 
-    public List<PrinterModelDTO> getAll(HttpServletRequest request) {
+    public List<PrinterModelDTO> getAllPrinterModels(HttpServletRequest request) {
         Company company = jwtService.extractUser(request).getCompany();
         return printerModelRepository.findAllByCompany(company).stream()
                 .map(printerModelDTOMapper)
                 .collect(Collectors.toList());
     }
 
-    public void delete(Long id, HttpServletRequest request) {
+    public void deletePrinterModel(Long id, HttpServletRequest request) {
         Company company = jwtService.extractUser(request).getCompany();
         PrinterModel model = getModel(company,id);
         printerModelRepository.delete(model);
-    }
-
-    private void modelExists(Company company,String model){
-        if(printerModelRepository.modelExists(company,model))
-            throw new CustomValidationException("Model already exists.");
     }
 
     private PrinterModel getModel(Company company , Long id){
@@ -65,7 +57,7 @@ public class PrinterModelService {
         return model.get();
     }
 
-    private void saveModelIntoDB(Company company,String model){
+    private void savePrinterModelIntoDB(Company company, String model){
         PrinterModel printerModel = PrinterModel.builder()
                 .company(company)
                 .model(model)
