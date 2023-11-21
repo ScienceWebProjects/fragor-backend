@@ -2,7 +2,9 @@ package com.filament.measurement.Filament.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.filament.measurement.Authentication.Model.Company;
+import com.filament.measurement.Authentication.Model.ElectricityTariff;
 import com.filament.measurement.Authentication.Model.User;
+import com.filament.measurement.Authentication.Repository.ElectricityTariffRepository;
 import com.filament.measurement.Authentication.Service.JwtService;
 import com.filament.measurement.Device.Model.AddingDevice;
 import com.filament.measurement.Device.Model.MeasuringDevice;
@@ -10,7 +12,9 @@ import com.filament.measurement.Device.Repository.AddingDeviceRepository;
 import com.filament.measurement.Device.Repository.MeasuringDeviceRepository;
 import com.filament.measurement.Exception.CustomValidationException;
 import com.filament.measurement.Exception.NotFound404Exception;
+import com.filament.measurement.Filament.DTO.FilamentChartDTO;
 import com.filament.measurement.Filament.DTO.FilamentDTO;
+import com.filament.measurement.Filament.DTOMapper.FilamentChartDTOMapper;
 import com.filament.measurement.Filament.DTOMapper.FilamentDTOMapper;
 import com.filament.measurement.Filament.Model.*;
 import com.filament.measurement.Filament.Repository.*;
@@ -20,16 +24,20 @@ import com.filament.measurement.Filament.Request.FilamentSubtractionRequest;
 import com.filament.measurement.Printer.Model.Printer;
 import com.filament.measurement.Printer.Model.PrinterFilaments;
 import com.filament.measurement.Printer.Repository.PrinterFilamentsRepository;
-import com.filament.measurement.UDP.UDP;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,7 +45,6 @@ import java.util.stream.Collectors;
 public class FilamentService {
     @Value("${client.url}")
     private String clientUrl;
-    private final UDP udp;
     private final JwtService jwtService;
     private final MeasuringDeviceRepository measuringDeviceRepository;
     private final FilamentDTOMapper filamentDTOMapper;
@@ -48,9 +55,12 @@ public class FilamentService {
     private final PrinterFilamentsRepository printerFilamentsRepository;
     private final AddingDeviceRepository addingDeviceRepository;
     private final FilamentNoteRepository filamentNoteRepository;
+    private final ElectricityTariffRepository electricityTariffRepository;
+    private final FilamentChartRepository filamentChartRepository;
+    private final FilamentChartDTOMapper filamentChartDTOMapper;
+
 
     public FilamentService(
-            UDP udp,
             JwtService jwtService,
             MeasuringDeviceRepository measuringDeviceRepository,
             FilamentDTOMapper filamentDTOMapper,
@@ -59,8 +69,11 @@ public class FilamentService {
             FilamentBrandRepository filamentBrandRepository,
             FilamentMaterialRepository filamentMaterialRepository,
             PrinterFilamentsRepository printerFilamentsRepository,
-            AddingDeviceRepository addingDeviceRepository, FilamentNoteRepository filamentNoteRepository) {
-        this.udp = udp;
+            AddingDeviceRepository addingDeviceRepository,
+            FilamentNoteRepository filamentNoteRepository,
+            ElectricityTariffRepository electricityTariffRepository,
+            FilamentChartRepository filamentChartRepository,
+            FilamentChartDTOMapper filamentChartDTOMapper) {
         this.jwtService = jwtService;
         this.measuringDeviceRepository = measuringDeviceRepository;
         this.filamentDTOMapper = filamentDTOMapper;
@@ -71,6 +84,9 @@ public class FilamentService {
         this.printerFilamentsRepository = printerFilamentsRepository;
         this.addingDeviceRepository = addingDeviceRepository;
         this.filamentNoteRepository = filamentNoteRepository;
+        this.electricityTariffRepository = electricityTariffRepository;
+        this.filamentChartRepository = filamentChartRepository;
+        this.filamentChartDTOMapper = filamentChartDTOMapper;
     }
     public FilamentDTO addFilament(FilamentRequest form, HttpServletRequest request) throws IOException, InterruptedException {
         User user = jwtService.extractUser(request);
@@ -82,7 +98,7 @@ public class FilamentService {
 
         if(filamentRepository.findByUidAndCompany(uid,user.getCompany()).isPresent())
             throw new CustomValidationException("Filament already exists.");
-        Filament filament = saveFilamentIntoTheDB(user.getCompany(), form, filamentColor, filamentMaterial,filamentBrand,uid);
+        Filament filament = saveFilamentIntoTheDB(form.getPrice(),user.getCompany(), form, filamentColor, filamentMaterial,filamentBrand,uid);
         return filamentDTOMapper.apply(filament);
     }
 
@@ -116,6 +132,9 @@ public class FilamentService {
         }
         if(filament.getDiameter() != form.getDiameter()){
             filament.setDiameter(form.getDiameter());
+        }
+        if(filament.getPrice() != form.getPrice()){
+            filament.setPrice(form.getPrice());
         }
 
         filamentRepository.save(filament);
@@ -153,6 +172,7 @@ public class FilamentService {
                             .company(user.getCompany())
                             .brand(filamentBrands.get(random.nextInt(filamentBrands.size())))
                             .diameter(1.75)
+                            .price(50.0)
                             .build()
             );
         }
@@ -197,35 +217,131 @@ public class FilamentService {
 
     public void subtraction(FilamentSubtractionRequest form, HttpServletRequest request) {
         Company company = jwtService.extractUser(request).getCompany();
-        Optional<MeasuringDevice> deviceOptional = measuringDeviceRepository.findByIp(form.getIp());
-        if (deviceOptional.isEmpty()) return;
-        MeasuringDevice measuringDevice = deviceOptional.get();
-        Printer printer = measuringDevice.getPrinter();
+        System.out.println(form.getCompany());
+        Printer printer = getPrinterFromMeasuringDeviceIpAndCompany(form.getIp(),company);
+        if (printer == null) return;
+        printer.setWorkHours(printer.getWorkHours() + (double) form.getHours());
 
-        Optional<Filament> filamentOptional = filamentRepository.findByUidAndCompany(form.getUid(),company);
-        if(filamentOptional.isEmpty()) return;
-        Filament filament = filamentOptional.get();
+        Filament filament = getFilamentByUidAndCompany(form.getUid(), company);
+        if (filament == null) return;
 
-        filament.setQuantity(filament.getQuantity()-form.getQuantity());
+        Optional<PrinterFilaments> printerFilamentsOptional = getPrinterFilaments(printer, filament);
+
+        double mass = calculateFilamentMass(filament, form.getQuantity());
+        double electricalTariffPrice = getElectricityTariffPrice(company);
+        double price = calculatePrice(form.getHours(),printer.getPower(),mass,filament.getPrice(),electricalTariffPrice);
+
+        filament.setQuantity(filament.getQuantity() - mass);
         filamentRepository.save(filament);
-
-        Optional<PrinterFilaments> printerFilamentsOptional = printerFilamentsRepository
-                .findByPrinterAndFilamentMaterial(printer,filament.getMaterial());
-        printer.setWorkHours(printer.getWorkHours() + (double) form.getHours()/3600);
-
+        addDataToChart(filament,mass,company);
         if(printerFilamentsOptional.isEmpty()){
             PrinterFilaments printerFilaments = PrinterFilaments.builder()
                     .printer(printer)
-                    .amount(form.getQuantity())
+                    .amount(mass)
                     .filamentMaterial(filament.getMaterial())
+                    .price(price)
                     .build();
             printerFilamentsRepository.save(printerFilaments);
             return;
         }
+
         PrinterFilaments printerFilaments = printerFilamentsOptional.get();
-        printerFilaments.setAmount(printerFilaments.getAmount()+form.getQuantity());
+        printerFilaments.setAmount(printerFilaments.getAmount()+mass);
+        printerFilaments.setPrice(printerFilaments.getPrice()+price);
         printerFilamentsRepository.save(printerFilaments);
     }
+    public void addOrUpdateFilamentNote(Long filament_id, HttpServletRequest request, FilamentNotesRequest form) {
+        Filament filament = getFilamentFromDB(request, filament_id);
+        if(form.getNoteID() == null)
+            addNewNote(filament,form.getNote());
+        else{
+            updateNotes(filament_id,form,request);
+        }
+    }
+    public void deleteFilamentNote(Long filament_id, Long note_id, HttpServletRequest request) {
+        FilamentNotes filamentNote = getFilamentNote(filament_id, note_id, request);
+        filamentNoteRepository.delete(filamentNote);
+    }
+    public List<FilamentChartDTO> getFilamentDataChart(HttpServletRequest request) {
+        Company company = jwtService.extractUser(request).getCompany();
+        return filamentChartRepository.findAllByCompany(company).stream()
+                .map(filamentChartDTOMapper)
+                .collect(Collectors.toList());
+    }
+
+    private void addDataToChart(Filament filament, double mass, Company company) {
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDateString = currentDate.format(formatter);
+        Optional<FilamentChart> filamentChartOptional = filamentChartRepository.findByColorAndMaterialAndBrandAndTimeAndCompany(
+                filament.getColor().getColor(),
+                filament.getMaterial().getMaterial(),
+                filament.getBrand().getBrand(),
+                formattedDateString,
+                company);
+        if(filamentChartOptional.isEmpty()){
+            FilamentChart filamentChart = FilamentChart.builder()
+                    .brand(filament.getBrand().getBrand())
+                    .color(filament.getColor().getColor())
+                    .company(company)
+                    .time(formattedDateString)
+                    .material(filament.getMaterial().getMaterial())
+                    .quantity(mass)
+                    .build();
+            filamentChartRepository.save(filamentChart);
+            return;
+        }
+        FilamentChart filamentChart = filamentChartOptional.get();
+        filamentChart.setQuantity(filamentChart.getQuantity()+mass);
+        filamentChartRepository.save(filamentChart);
+
+    }
+
+    private double getElectricityTariffPrice(Company company) {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        LocalDate currentDate = LocalDate.now();
+        DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
+        boolean isWeekend = currentDayOfWeek == DayOfWeek.SATURDAY || currentDayOfWeek == DayOfWeek.SUNDAY;
+        boolean workingDays = true;
+        boolean weekend = false;
+        if(isWeekend){
+            workingDays = false;
+            weekend = true;
+        }
+        Optional<ElectricityTariff> tariffOptional = electricityTariffRepository.findValidTariff(localDateTime.getHour(), workingDays, weekend,company);
+        if(tariffOptional.isEmpty())
+            return 0.0;
+        ElectricityTariff electricityTariff = tariffOptional.get();
+        return electricityTariff.getPrice();
+    }
+
+    private double calculatePrice(double hours, double power, double mass, double price, double electricalTariffPrice) {
+        return (hours * (power/1000) * electricalTariffPrice) + (mass * price/1000);
+    }
+
+    private double calculateFilamentMass(Filament filament, int quantity) {
+        double volume = quantity/10 * 3.14*filament.getDiameter()/20*filament.getDiameter()/20;
+        return filament.getMaterial().getDensity() * volume;
+    }
+
+    private Optional<PrinterFilaments> getPrinterFilaments(Printer printer, Filament filament) {
+        return printerFilamentsRepository
+                .findByPrinterAndFilamentMaterial(printer, filament.getMaterial());
+    }
+
+    private Filament getFilamentByUidAndCompany(Long uid, Company company) {
+        Optional<Filament> filamentOptional = filamentRepository.findByUidAndCompany(uid, company);
+        if(filamentOptional.isEmpty()) return null;
+        return filamentOptional.get();
+    }
+
+    private Printer getPrinterFromMeasuringDeviceIpAndCompany(InetAddress ip, Company company) {
+        Optional<MeasuringDevice> deviceOptional = measuringDeviceRepository.findByIpAndCompany(ip,company);
+        if (deviceOptional.isEmpty()) return null;
+        MeasuringDevice measuringDevice = deviceOptional.get();
+        return measuringDevice.getPrinter();
+    }
+
 
     private Filament getFilamentByUid(long uid, Company company) {
         Optional<Filament> filamentOptional = filamentRepository.findByUidAndCompany(uid,company);
@@ -262,6 +378,7 @@ public class FilamentService {
     }
 
     private Filament saveFilamentIntoTheDB(
+            double price,
             Company company,
             FilamentRequest form,
             FilamentColor filamentColor,
@@ -277,6 +394,7 @@ public class FilamentService {
                 .material(filamentMaterial)
                 .brand(filamentBrand)
                 .diameter(form.getDiameter())
+                .price(price)
                 .build();
         filamentRepository.save(filament);
         return filament;
@@ -340,19 +458,6 @@ public class FilamentService {
         return filament.getNotes();
     }
 
-    public void addOrUpdateFilamentNote(Long filament_id, HttpServletRequest request, FilamentNotesRequest form) {
-        Filament filament = getFilamentFromDB(request, filament_id);
-        if(form.getNoteID() == null)
-            addNewNote(filament,form.getNote());
-        else{
-            updateNotes(filament_id,form,request);
-        }
-    }
-    public void deleteFilamentNote(Long filament_id, Long note_id, HttpServletRequest request) {
-        FilamentNotes filamentNote = getFilamentNote(filament_id, note_id, request);
-        filamentNoteRepository.delete(filamentNote);
-    }
-
     private void updateNotes(Long filament_id, FilamentNotesRequest form, HttpServletRequest request) {
         FilamentNotes filamentNote = getFilamentNote(filament_id, form.getNoteID(), request);
         filamentNote.setNote(form.getNote());
@@ -374,6 +479,4 @@ public class FilamentService {
                 .build();
         filamentNoteRepository.save(filamentNotes);
     }
-
-
 }

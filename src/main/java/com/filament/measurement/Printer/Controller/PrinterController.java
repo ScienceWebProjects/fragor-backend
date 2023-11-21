@@ -2,13 +2,11 @@ package com.filament.measurement.Printer.Controller;
 
 import com.filament.measurement.Printer.DTO.PrinterDTO;
 import com.filament.measurement.Printer.Model.PrinterNotes;
-import com.filament.measurement.Printer.Request.PrinterModelRequest;
 import com.filament.measurement.Printer.Request.PrinterNotesRequest;
 import com.filament.measurement.Printer.Request.PrinterRequest;
 import com.filament.measurement.Printer.Service.PrinterService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Null;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -54,12 +52,12 @@ public class PrinterController {
     }
     @PatchMapping("update/{id}/")
     @PreAuthorize("hasAuthority('changer:update')")
-    public ResponseEntity<Void> updatePrinterNameModel(
+    public ResponseEntity<Void> updatePrinter(
             @PathVariable Long id,
             @Valid @RequestBody PrinterRequest form,
             HttpServletRequest request
     ){
-        printerService.updateNameModel(id,form,request);
+        printerService.updatePrinter(id,form,request);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
     @GetMapping("image/{name}/")

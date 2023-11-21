@@ -29,7 +29,7 @@ public class JwtService {
         this.tokenRepository = tokenRepository;
     }
 
-    private static final String SECRET_KEY = "586E3272357538782F413F4428472B4B6250655368566D597133733676397924";
+
     public String extractUsername(String token) {
         return extractClaim(token,Claims::getSubject);
     }
@@ -63,7 +63,7 @@ public class JwtService {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
-
+    private static final String SECRET_KEY = "586E3272357538782F413F4428472B4B6250655368566D597133733676397924";
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }

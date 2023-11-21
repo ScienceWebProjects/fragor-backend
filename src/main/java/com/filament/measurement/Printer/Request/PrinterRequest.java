@@ -1,6 +1,7 @@
 package com.filament.measurement.Printer.Request;
 
 import com.filament.measurement.Validation.Anotation.UniquePrinterName;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -11,4 +12,6 @@ public class PrinterRequest {
     private String name;
     @NotNull(message = "Printer's model can't be null.")
     private String model;
+    @DecimalMin(value="1.0")
+    private double power;
 }

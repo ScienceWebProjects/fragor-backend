@@ -21,6 +21,8 @@ public class FilamentRequest {
     @NotNull
     private String brand;
 
+    private double price;
+
     @DecimalMin(value = "1.0")
     @DecimalMax(value = "5.0")
     private double diameter;

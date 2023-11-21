@@ -12,6 +12,7 @@ public class PrinterFilamentsDTOMapper implements Function<PrinterFilaments, Pri
         return PrinterFilamentsDTO.builder()
                 .amount(printerFilaments.getAmount())
                 .filamentMaterial(printerFilaments.getFilamentMaterial().getMaterial())
+                .price(printerFilaments.getPrice())
                 .build();
     }
 }

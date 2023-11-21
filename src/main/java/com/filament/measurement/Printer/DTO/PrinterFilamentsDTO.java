@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder
 public record PrinterFilamentsDTO(
         double amount,
-        String filamentMaterial
+        String filamentMaterial,
+        double price
 ) {
 }

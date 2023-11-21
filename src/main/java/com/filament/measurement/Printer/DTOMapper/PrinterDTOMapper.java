@@ -30,6 +30,7 @@ public class PrinterDTOMapper implements Function<Printer, PrinterDTO> {
                 .name(printer.getName())
                 .workHours(printer.getWorkHours())
                 .image(printer.getImage())
+                .power(printer.getPower())
                 .build();
     }
 }

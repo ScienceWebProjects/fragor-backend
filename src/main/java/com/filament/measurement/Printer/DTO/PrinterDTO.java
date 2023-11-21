@@ -10,6 +10,7 @@ public record PrinterDTO (
         double workHours,
         String model,
         String image,
-        List<PrinterFilamentsDTO> filaments
+        List<PrinterFilamentsDTO> filaments,
+        double power
 )
 {}

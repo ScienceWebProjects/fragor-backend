@@ -12,5 +12,5 @@ public interface MeasuringDeviceRepository extends JpaRepository<MeasuringDevice
 
     Optional<MeasuringDevice> findByPrinterId(Long id);
     Optional<MeasuringDevice> findByCompanyAndId(Company company, Long id);
-    Optional<MeasuringDevice> findByIp(InetAddress ip);
+    Optional<MeasuringDevice> findByIpAndCompany(InetAddress ip,Company company);
 }

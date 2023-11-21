@@ -28,6 +28,7 @@ public class Printer {
 
     private double workHours;
     private String image;
+    private double power;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private PrinterModel  printerModel;

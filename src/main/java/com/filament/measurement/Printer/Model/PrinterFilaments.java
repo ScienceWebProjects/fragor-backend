@@ -22,4 +22,5 @@ public class PrinterFilaments {
     @ManyToOne(fetch = FetchType.EAGER)
     private FilamentMaterial filamentMaterial;
     private double amount;
+    private double price;
 }

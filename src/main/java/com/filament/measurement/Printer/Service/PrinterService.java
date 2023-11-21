@@ -51,7 +51,7 @@ public class PrinterService {
     public void addPrinter(HttpServletRequest request, PrinterRequest form){
         Company company = jwtService.extractUser(request).getCompany();
         PrinterModel printerModel = getPrinterModel(company, form.getModel());
-        Printer printer = savePrinterIntoDB(printerModel,form.getName(),company);
+        Printer printer = savePrinterIntoDB(printerModel,form,company);
         printerDTOMapper.apply(printer);
     }
     public void updatePrinterImage(Long id, MultipartFile image, HttpServletRequest request) throws IOException {
@@ -73,12 +73,13 @@ public class PrinterService {
         return false;
     }
 
-    public void updateNameModel(Long id, PrinterRequest form, HttpServletRequest request) {
+    public void updatePrinter(Long id, PrinterRequest form, HttpServletRequest request) {
         Company company = jwtService.extractUser(request).getCompany();
         Printer printer = getPrinter(request,id);
         PrinterModel printerModel = getPrinterModel(company, form.getModel());
         printer.setName(form.getName());
         printer.setPrinterModel(printerModel);
+        printer.setPower(form.getPower());
         printerRepository.save(printer);
     }
 
@@ -159,14 +160,15 @@ public class PrinterService {
         image.transferTo(new File(printerImagePath+name));
         return name;
     }
-    private Printer savePrinterIntoDB(PrinterModel printerModel, String name, Company company) {
+    private Printer savePrinterIntoDB(PrinterModel printerModel, PrinterRequest form, Company company) {
         Printer printer = Printer.builder()
-                .name(name)
+                .name(form.getName())
                 .company(company)
                 .workHours(0.0)
                 .printerModel(printerModel)
                 .filaments(Collections.emptyList())
                 .image("defaultPrinter")
+                .power(form.getPower())
                 .build();
         printerRepository.save(printer);
         return printer;

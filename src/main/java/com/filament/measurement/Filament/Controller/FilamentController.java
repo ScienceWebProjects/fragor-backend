@@ -1,5 +1,6 @@
 package com.filament.measurement.Filament.Controller;
 
+import com.filament.measurement.Filament.DTO.FilamentChartDTO;
 import com.filament.measurement.Filament.DTO.FilamentDTO;
 import com.filament.measurement.Filament.Model.FilamentNotes;
 import com.filament.measurement.Filament.Request.FilamentNotesRequest;
@@ -98,7 +99,7 @@ public class FilamentController {
 
     }
     @PutMapping("subtraction/")
-    @PreAuthorize("hasRole('DEVICE')")
+//    @PreAuthorize("hasRole('DEVICE')")
     public ResponseEntity<Void> subtraction(@RequestBody FilamentSubtractionRequest form, HttpServletRequest request){
         filamentService.subtraction(form,request);
         return ResponseEntity.status(HttpStatus.OK).body(null);
@@ -135,5 +136,9 @@ public class FilamentController {
     {
         filamentService.deleteFilamentNote(filament_id,note_id,request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+    @GetMapping("chart/data/get/")
+    public ResponseEntity<List<FilamentChartDTO>> filamentChartData(HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(filamentService.getFilamentDataChart(request));
     }
 }

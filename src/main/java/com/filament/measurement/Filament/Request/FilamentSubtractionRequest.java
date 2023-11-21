@@ -8,6 +8,7 @@ import java.net.InetAddress;
 public class FilamentSubtractionRequest {
     private long uid;
     private InetAddress ip;
-    private int hours;
+    private double hours;
     private int quantity;
+    private String company;
 }

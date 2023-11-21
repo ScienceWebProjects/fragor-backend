@@ -9,6 +9,7 @@ public record FilamentDTO(
         String color,
         String material,
         String brand,
-        double diameter
+        double diameter,
+        double price
 )
 {}
