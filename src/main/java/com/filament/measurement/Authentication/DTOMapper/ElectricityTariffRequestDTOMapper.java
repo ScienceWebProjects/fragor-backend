@@ -12,8 +12,8 @@ public class ElectricityTariffRequestDTOMapper implements Function<ElectricityTa
     public ElectricityTariffDTO apply(ElectricityTariff electricityTariff) {
         return ElectricityTariffDTO.builder()
                 .id(electricityTariff.getId())
-                .from(electricityTariff.getHourFrom())
-                .to(electricityTariff.getHourTo())
+                .hourFrom(electricityTariff.getHourFrom())
+                .hourTo(electricityTariff.getHourTo())
                 .price(electricityTariff.getPrice())
                 .workingDays(electricityTariff.isWorkingDays())
                 .weekend(electricityTariff.isWeekend())

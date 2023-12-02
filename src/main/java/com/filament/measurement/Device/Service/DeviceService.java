@@ -65,6 +65,8 @@ public class DeviceService {
 
     public void connectMeasureDeviceToPrinter(Long printerId, HttpServletRequest request) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
+        System.out.println(clientUrl+"device/adding/add/");
+
         HttpRequest getRequest = HttpRequest.newBuilder()
                 .uri(URI.create(clientUrl+"device/adding/add/"))
                 .GET()
