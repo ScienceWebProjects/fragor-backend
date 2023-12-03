@@ -4,6 +4,7 @@ import com.filament.measurement.Printer.DTO.PrinterModelDTO;
 import com.filament.measurement.Printer.Request.PrinterModelRequest;
 import com.filament.measurement.Printer.Service.PrinterModelService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class PrinterModelController {
 
     @PostMapping("add/")
     @PreAuthorize("hasAuthority('changer:create')")
-    public ResponseEntity<Void> addPrinterModel(@RequestBody PrinterModelRequest model, HttpServletRequest request){
+    public ResponseEntity<Void> addPrinterModel(@Valid @RequestBody PrinterModelRequest model, HttpServletRequest request){
         printerModelService.addPrinterModel(model,request);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }

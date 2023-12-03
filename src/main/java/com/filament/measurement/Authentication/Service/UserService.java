@@ -15,7 +15,6 @@ import com.filament.measurement.Authentication.Permission.TokenType;
 import com.filament.measurement.Authentication.Repository.CompanyRepository;
 import com.filament.measurement.Authentication.Repository.TokenRepository;
 import com.filament.measurement.Authentication.Repository.UserRepository;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -86,6 +85,8 @@ public class UserService {
         User masterUser = jwtService.extractUser(request);
         User deleteUser = userRepository.findByEmail(email).orElseThrow(() -> new NotFound404Exception("No found user by email"));
         isUserInCompany(masterUser,deleteUser);
+        if(masterUser.getEmail().equals(email))
+            throw new CustomValidationException("Master can't delete yourself.");
         userRepository.deleteById(deleteUser.getId());
     }
 
@@ -111,8 +112,15 @@ public class UserService {
 
     public void changeUserEmail(ChangeUserEmailRequest form, HttpServletRequest request) {
         User user = jwtService.extractUser(request);
+        List<Token> tokens = user.getTokens();
         user.setEmail(form.getEmail());
+        for(Token token : tokens){
+            token.setExpired(true);
+            token.setRevoked(true);
+        }
+        tokenRepository.saveAll(tokens);
         userRepository.save(user);
+
     }
 
     public void changeUserPassword(ChangeUserPasswordRequest form, HttpServletRequest request) {
@@ -125,6 +133,17 @@ public class UserService {
             throw new CustomValidationException("Password don't match");
 
         user.setPassword(passwordEncoder.encode(form.getPassword()));
+        userRepository.save(user);
+    }
+    public void changeMaster(HttpServletRequest request, String email) {
+        User master = jwtService.extractUser(request);
+        if(master.getEmail().equals(email))
+            throw new CustomValidationException("NOPE");
+        User user = getUser(email);
+        isUserInCompany(master,user);
+        master.setRole(Role.CHANGER_USER);
+        user.setRole(Role.MASTER_USER);
+        userRepository.save(master);
         userRepository.save(user);
     }
     public void changeUserPin(ChangeUserPinRequest form, HttpServletRequest request) {
@@ -194,4 +213,6 @@ public class UserService {
                 .build();
         userRepository.save(user);
     }
+
+
 }

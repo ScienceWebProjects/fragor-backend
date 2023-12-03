@@ -9,16 +9,13 @@ import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-public class UniqueFilamentColorValidator implements ConstraintValidator<UniqueFilamentColorName,String> {
-    private final FilamentColorRepository  filamentColorRepository;
+public class UniqueFilamentColorNameValidator implements ConstraintValidator<UniqueFilamentColorName,String> {
+    private final FilamentColorRepository filamentColorRepository;
     private final JwtService jwtService;
-
-    public UniqueFilamentColorValidator(FilamentColorRepository filamentColorRepository, JwtService jwtService) {
+    public UniqueFilamentColorNameValidator(FilamentColorRepository filamentColorRepository, JwtService jwtService) {
         this.filamentColorRepository = filamentColorRepository;
         this.jwtService = jwtService;
     }
-
-
     @Override
     public void initialize(UniqueFilamentColorName constraintAnnotation) {
     }

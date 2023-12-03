@@ -90,7 +90,14 @@ public class UserController {
         service.changeUserPin(form,request);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
-
-
-
+    @GetMapping("settings/change/master/{email}/")
+    @PreAuthorize("hasAuthority('master:update')")
+    public ResponseEntity<Void> changeMaster(
+            @PathVariable String email,
+            HttpServletRequest request
+    )
+    {
+        service.changeMaster(request,email);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
 }
