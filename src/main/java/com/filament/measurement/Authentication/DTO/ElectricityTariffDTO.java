@@ -5,8 +5,8 @@ import lombok.Builder;
 @Builder
 public record ElectricityTariffDTO(
         Long id,
-        Integer from,
-        Integer to,
+        Integer hourFrom,
+        Integer hourTo,
         double price,
         boolean workingDays,
         boolean weekend,

@@ -84,22 +84,30 @@ public class CompanyService {
 
 
     public void addOrUpdateElectricityTariff(ElectricityTariffRequest form, HttpServletRequest request) {
-        if(form.getHourFrom()>form.getHourTo())
+        if (form.getHourFrom() > form.getHourTo())
             throw new CustomValidationException("Hour to must be grater then hour from.");
+
         Company company = jwtService.extractUser(request).getCompany();
+        if (form.getId() != null) {
+            ElectricityTariff electricityTariff = getElectricityTariff(form.getId(), company);
+            electricityTariffRepository.delete(electricityTariff);
+        }
+
         List<ElectricityTariff> electricityTariffs = getElectricityTariffs(form, company);
-        if(!electricityTariffs.isEmpty()) {
+        if (!electricityTariffs.isEmpty()) {
             for (ElectricityTariff et : electricityTariffs) {
                 if ((form.getHourFrom() >= et.getHourFrom() && form.getHourFrom() < et.getHourTo()) ||
-                        form.getHourTo() > et.getHourFrom() && form.getHourTo() <= et.getHourTo())
+                        form.getHourTo() > et.getHourFrom() && form.getHourTo() <= et.getHourTo()){
+                    if (form.getId() != null) {
+                        ElectricityTariff electricityTariff = getElectricityTariff(form.getId(), company);
+                        electricityTariffRepository.save(electricityTariff);
+                    }
                     throw new CustomValidationException("Electric tariff with this hours already exists.");
+                }
             }
         }
-        if (form.getId() == null) {
-            addNewElectricityTariff(form, company);
-        } else {
-            updateElectricityTariff(form, company);
-        }
+
+        addNewElectricityTariff(form, company);
     }
 
 
@@ -136,16 +144,16 @@ public class CompanyService {
         }
     }
 
-    private void updateElectricityTariff(ElectricityTariffRequest form, Company company) {
-        ElectricityTariff electricityTariff = getElectricityTariff(form.getId(), company);
-        electricityTariff.setName(form.getName());
-        electricityTariff.setPrice(form.getPrice());
-        electricityTariff.setWeekend(form.isWeekend());
-        electricityTariff.setWorkingDays(form.isWorkingDays());
-        electricityTariff.setHourTo(form.getHourTo());
-        electricityTariff.setHourFrom(form.getHourFrom());
-        electricityTariffRepository.save(electricityTariff);
-    }
+//    private void updateElectricityTariff(ElectricityTariffRequest form, Company company) {
+//        ElectricityTariff electricityTariff = getElectricityTariff(form.getId(), company);
+//        electricityTariff.setName(form.getName());
+//        electricityTariff.setPrice(form.getPrice());
+//        electricityTariff.setWeekend(form.isWeekend());
+//        electricityTariff.setWorkingDays(form.isWorkingDays());
+//        electricityTariff.setHourTo(form.getHourTo());
+//        electricityTariff.setHourFrom(form.getHourFrom());
+//        electricityTariffRepository.save(electricityTariff);
+//    }
 
     public List<ElectricityTariffDTO> getAllElectricityTariff(HttpServletRequest request) {
         Company company = jwtService.extractUser(request).getCompany();
@@ -169,6 +177,11 @@ public class CompanyService {
     }
 
     private void addNewElectricityTariff(ElectricityTariffRequest form, Company company) {
+        List<ElectricityTariff> allByCompany = electricityTariffRepository.findAllByCompany(company);
+        allByCompany.forEach(et ->{
+            if(et.getName().equals(form.getName()))
+                throw new CustomValidationException("Electricity tariff's name already exists.");
+        } );
         ElectricityTariff electricityTariff = ElectricityTariff.builder()
                 .name(form.getName())
                 .hourFrom(form.getHourFrom())

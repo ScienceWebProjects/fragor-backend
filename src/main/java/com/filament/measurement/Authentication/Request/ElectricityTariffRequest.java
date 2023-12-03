@@ -13,7 +13,7 @@ public class ElectricityTariffRequest {
 
     private Long id;
     @NonNull
-    @UniqueElectricityTariffName
+//    @UniqueElectricityTariffName
     private String name;
     @NonNull
     @Min(0)

@@ -1,6 +1,6 @@
 package com.filament.measurement.Validation.Anotation;
 
-import com.filament.measurement.Validation.Validator.UniqueFilamentColorValidator;
+import com.filament.measurement.Validation.Validator.UniqueFilamentColorNameValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -9,7 +9,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = UniqueFilamentColorValidator.class)
+@Constraint(validatedBy = UniqueFilamentColorNameValidator.class)
+
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UniqueFilamentColorName {
